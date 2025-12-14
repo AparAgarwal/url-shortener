@@ -1,0 +1,20 @@
+{
+  "name": "backend-practice",
+  "version": "1.0.0",
+  "description": "Learning backend from scratch",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": [
+    "node",
+    "backend",
+    "practice"
+  ],
+  "author": "Apar Agarwal",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1"
+  }
+}
