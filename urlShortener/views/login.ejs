@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LogIn - URL Shortener</title>
+    <link rel="stylesheet" href="/auth.css">
+</head>
+
+<body>
+    <div class="auth-container">
+        <div class="auth-header">
+            <h1>Sign In</h1>
+            <p class="subtitle">Join URL Shortener and start managing your links</p>
+        </div>
+
+        <% if (locals.error) { %>
+            <div class="error-message">
+                <%= error %>
+            </div>
+            <% } %>
+
+                <% if (locals.success) { %>
+                    <div class="success-message">
+                        <%= success %>
+                    </div>
+                    <% } %>
+
+                        <form method="POST" action="/user/login">
+                            <div class="form-group">
+                                <label for="username">Username</label>
+                                <input type="text" id="username" name="username" placeholder="johndoe" required
+                                    minlength="3" value="<%= locals.username || '' %>">
+                            </div>
+                            <div class="form-group">
+                                <label for="password">Password</label>
+                                <input type="password" id="password" name="password"
+                                    placeholder="Enter a strong password" required minlength="8">
+                            </div>
+
+                            <button type="submit" class="submit-btn">Sign In</button>
+                        </form>
+
+                        <div class="auth-footer">
+                            Don't have an account? <a href="/signup">Sign Up</a>
+                        </div>
+
+                        <div class="home-link">
+                            <a href="/">← Back to Home</a>
+                        </div>
+    </div>
+
+    <% if (locals.success && locals.redirectTo) { %>
+        <script>
+            setTimeout(() => {
+                window.location.href = "<%= redirectTo %>";
+            }, "<%= locals.delay || 1500 %>");
+        </script>
+    <% } %>
+
+</body>
+</html>

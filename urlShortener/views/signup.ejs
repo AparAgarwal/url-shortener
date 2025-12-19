@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - URL Shortener</title>
+    <link rel="stylesheet" href="/auth.css">
+</head>
+
+<body>
+    <div class="auth-container">
+        <div class="auth-header">
+            <h1>🔗 Create Account</h1>
+            <p class="subtitle">Join URL Shortener and start managing your links</p>
+        </div>
+
+        <% if (locals.error) { %>
+            <div class="error-message">
+                <%= error %>
+            </div>
+            <% } %>
+
+                <% if (locals.success) { %>
+                    <div class="success-message">
+                        <%= success %>
+                    </div>
+                    <% } %>
+
+                        <form method="POST" action="/user">
+                            <div class="form-group">
+                                <label for="fullName">Full Name</label>
+                                <input type="text" id="fullName" name="fullName" placeholder="John Doe" required
+                                    value="<%= locals.fullName || '' %>">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="username">Username</label>
+                                <input type="text" id="username" name="username" placeholder="johndoe" required
+                                    minlength="3" value="<%= locals.username || '' %>">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="email">Email Address</label>
+                                <input type="email" id="email" name="email" placeholder="john@example.com" required
+                                    value="<%= locals.email || '' %>">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="password">Password</label>
+                                <input type="password" id="password" name="password"
+                                    placeholder="Enter a strong password" required minlength="8">
+                                <p class="password-hint">Must be at least 8 characters long</p>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="confirmPassword">Confirm Password</label>
+                                <input type="password" id="confirmPassword" name="confirmPassword"
+                                    placeholder="Re-enter your password" required minlength="8">
+                            </div>
+
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="terms" name="terms" required>
+                                <label for="terms">I agree to the Terms of Service and Privacy Policy</label>
+                            </div>
+
+                            <button type="submit" class="submit-btn">Create Account</button>
+                        </form>
+
+                        <div class="auth-footer">
+                            Already have an account? <a href="/login">Sign In</a>
+                        </div>
+
+                        <div class="home-link">
+                            <a href="/">← Back to Home</a>
+                        </div>
+    </div>
+
+    <script>
+        // Client-side password validation
+        const form = document.querySelector('form');
+        const password = document.getElementById('password');
+        const confirmPassword = document.getElementById('confirmPassword');
+
+        form.addEventListener('submit', (e) => {
+            if (password.value !== confirmPassword.value) {
+                e.preventDefault();
+                alert('Passwords do not match!');
+                confirmPassword.focus();
+            }
+        });
+
+        // Real-time password match indicator
+        confirmPassword.addEventListener('input', () => {
+            if (confirmPassword.value && password.value !== confirmPassword.value) {
+                confirmPassword.style.borderColor = '#dc3545';
+            } else {
+                confirmPassword.style.borderColor = '#e0e0e0';
+            }
+        });
+        </script>
+
+        <% if (locals.success && locals.redirectTo) { %>
+            <script>
+                setTimeout(() => {
+                    window.location.href = "<%= redirectTo %>";
+                }, "<%= locals.delay || 1500 %>");
+            </script>
+        <% } %>
+
+</body>
+
+</html>

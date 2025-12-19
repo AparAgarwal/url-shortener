@@ -2,12 +2,13 @@ import express from 'express';
 import {
     createShortUrl,
     redirectToUrl,
+    deleteUrl
 } from '../controllers/url.controller.js';
 
 const router = express.Router();
 
-router.route("/shorten").post(createShortUrl);
+router.post('/', createShortUrl);
 
-router.route("/:shortId").get(redirectToUrl);
+router.route("/:shortId").get(redirectToUrl).delete(deleteUrl);
 
 export default router;

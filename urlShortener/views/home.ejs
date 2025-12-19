@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Shortener</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🔗 URL Shortener</h1>
+        <p class="subtitle">Get your URL shortened in a click</p>
+
+        <% if (locals.id) { %>
+            <div class="success-message">
+                Your shortened URL is ready!
+            </div>
+            <div class="shortened-url-wrapper">
+                <div class="shortened-url" id="shortenedUrl">
+                    http://localhost:3000/url/<%= id %>
+                </div>
+                <button class="copy-btn" onclick="copyToClipboard(event)">📋</button>
+            </div>
+        <% } %>
+
+        <form method="POST" action="/url">
+            <div class="form-group">
+                <label for="redirectUrl">Enter your original URL</label>
+                <input 
+                    type="text" 
+                    id="redirectUrl"
+                    name="redirectUrl" 
+                    placeholder="https://example.com"
+                    required
+                >
+            </div>
+            <button type="submit">Generate Shortened URL</button>
+        </form>
+
+        <p class="info-text">Your URL will be shortened and ready to share instantly!</p>
+
+        <div class="management-link">
+            <a href="/test/all-urls">📊 View All URLs & Manage</a>
+        </div>
+    </div>
+
+    <script>
+        function copyToClipboard(event) {
+            const urlElement = document.getElementById('shortenedUrl');
+            const text = urlElement.innerText;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                const button = event.target;
+                const originalText = button.innerText;
+                
+                button.innerText = '✓';
+                button.classList.add('copied');
+                
+                setTimeout(() => {
+                    button.innerText = originalText;
+                    button.classList.remove('copied');
+                }, 2000);
+            }).catch(() => {
+                alert('Failed to copy URL');
+            });
+        }
+    </script>
+</body>
+</html>
