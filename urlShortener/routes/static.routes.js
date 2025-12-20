@@ -1,5 +1,5 @@
 import express from 'express';
-import { getAllUrlsPage } from '../controllers/url.controller.js';
+import { getAllUrls, redirectToUrl } from '../controllers/url.controller.js';
 
 const router = express.Router();
 
@@ -14,6 +14,9 @@ router.get("/login", (req, res)=>{
     return res.render("login"); 
 })
 
-router.get("/test/all-urls", getAllUrlsPage);
+router.get("/test/all-urls", getAllUrls);
+
+// GET /:shortId - Redirect to original URL (must be last to avoid conflicts)
+router.get("/:shortId", redirectToUrl);
 
 export default router;

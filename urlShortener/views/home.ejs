@@ -17,13 +17,13 @@
             </div>
             <div class="shortened-url-wrapper">
                 <div class="shortened-url" id="shortenedUrl">
-                    http://localhost:3000/url/<%= id %>
+                    http://localhost:3000/<%= id %>
                 </div>
                 <button class="copy-btn" onclick="copyToClipboard(event)">📋</button>
             </div>
         <% } %>
 
-        <form method="POST" action="/url">
+        <form method="POST" action="/api/v1/url">
             <div class="form-group">
                 <label for="redirectUrl">Enter your original URL</label>
                 <input 

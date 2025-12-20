@@ -70,7 +70,7 @@
 
     <script>
         function copyShortId(shortId, button) {
-            const fullUrl = `http://localhost:3000/url/${shortId}`;
+            const fullUrl = `http://localhost:3000/${shortId}`;
             const originalText = button.innerText;
 
             navigator.clipboard.writeText(fullUrl)
@@ -93,7 +93,7 @@
 
         function deleteUrl(shortId) {
             if (confirm('Are you sure you want to delete this URL?')) {
-                fetch(`/url/${shortId}`, {
+                fetch(`/api/v1/url/${shortId}`, {
                     method: 'DELETE'
                 })
                     .then(response => response.json())
