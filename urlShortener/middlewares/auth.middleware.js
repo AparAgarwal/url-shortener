@@ -40,6 +40,20 @@ export const verifyRefreshToken = asyncHandler(async (req, res, next) => {
         req.user = user;
         next();
     } catch (error) {
-        throw new ApiError(HTTP_STATUS.UNAUTHORIZED, error?.message || 'Invalid Access Token');
+        throw new ApiError(HTTP_STATUS.UNAUTHORIZED, error?.message || 'Invalid Refresh Token');
     }
+});
+
+export const restrictToLogin = asyncHandler(async (req, res, next) => {
+    const token = req.cookies?.accessToken || req.header('Authorization')?.replace('Bearer ', '');
+    if (!token) {
+        return res.redirect('login');
+    }
+    const verifiedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    const user = await User.findById(verifiedToken?._id);
+    if (!user) {
+        return res.redirect('login');
+    }
+    req.user = user;
+    next();
 });

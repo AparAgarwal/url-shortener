@@ -1,5 +1,9 @@
 import express from 'express';
-import { verifyAccessToken, verifyRefreshToken } from '../middlewares/auth.middleware.js';
+import {
+    restrictToLogin,
+    verifyAccessToken,
+    verifyRefreshToken
+} from '../middlewares/auth.middleware.js';
 import { getAllUrls, redirectToUrl, createShortUrl } from '../controllers/url.controller.js';
 import {
     userSignUp,
@@ -23,7 +27,7 @@ const router = express.Router();
 
 // ===== View Pages =====
 // GET / - Home page
-router.get('/', (req, res) => {
+router.get('/', restrictToLogin, (req, res) => {
     return res.render('home');
 });
 
