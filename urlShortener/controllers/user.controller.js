@@ -33,6 +33,16 @@ export const userSignUp = asyncHandler(async (req, res, next) => {
 
         const wantsJson = isApiRequest(req);
 
+        const { accessToken, refreshToken } = await generateAccessAndRefreshToken(user._id);
+
+        const cookieOptions = getCookieOptions();
+
+        res.cookie('accessToken', accessToken, cookieOptions).cookie(
+            'refreshToken',
+            refreshToken,
+            cookieOptions
+        );
+
         if (wantsJson) {
             const userResponse = {
                 _id: user._id,
