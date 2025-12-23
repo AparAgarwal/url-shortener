@@ -50,7 +50,12 @@
                                 <label for="password">Password</label>
                                 <input type="password" id="password" name="password"
                                     placeholder="Enter a strong password" required minlength="8">
-                                <p class="password-hint">Must be at least 8 characters long</p>
+                                <ul class="password-hint-container">
+                                    <li class="password-hint" id="hint-length">Must be at least 8 characters long</li>
+                                    <li class="password-hint" id="hint-uppercase">Must contain at least one UpperCase Letter</li>
+                                    <li class="password-hint" id="hint-lowercase">Must contain at least one LowerCase Letter</li>
+                                    <li class="password-hint" id="hint-number">Must contain at least one Number</li>
+                                </ul>
                             </div>
 
                             <div class="form-group">
@@ -82,6 +87,60 @@
         const password = document.getElementById('password');
         const confirmPassword = document.getElementById('confirmPassword');
 
+        // Password requirement elements
+        const hintLength = document.getElementById('hint-length');
+        const hintUppercase = document.getElementById('hint-uppercase');
+        const hintLowercase = document.getElementById('hint-lowercase');
+        const hintNumber = document.getElementById('hint-number');
+
+        // Real-time password validation
+        password.addEventListener('input', () => {
+            const value = password.value;
+
+            // Check length requirement (at least 8 characters)
+            if (value.length >= 8) {
+                hintLength.classList.add('valid');
+                hintLength.classList.remove('invalid');
+            } else {
+                hintLength.classList.add('invalid');
+                hintLength.classList.remove('valid');
+            }
+
+            // Check uppercase letter
+            if (/[A-Z]/.test(value)) {
+                hintUppercase.classList.add('valid');
+                hintUppercase.classList.remove('invalid');
+            } else {
+                hintUppercase.classList.add('invalid');
+                hintUppercase.classList.remove('valid');
+            }
+
+            // Check lowercase letter
+            if (/[a-z]/.test(value)) {
+                hintLowercase.classList.add('valid');
+                hintLowercase.classList.remove('invalid');
+            } else {
+                hintLowercase.classList.add('invalid');
+                hintLowercase.classList.remove('valid');
+            }
+
+            // Check number
+            if (/[0-9]/.test(value)) {
+                hintNumber.classList.add('valid');
+                hintNumber.classList.remove('invalid');
+            } else {
+                hintNumber.classList.add('invalid');
+                hintNumber.classList.remove('valid');
+            }
+
+            // If password field is empty, remove all classes
+            if (value.length === 0) {
+                [hintLength, hintUppercase, hintLowercase, hintNumber].forEach(hint => {
+                    hint.classList.remove('valid', 'invalid');
+                });
+            }
+        });
+
         form.addEventListener('submit', (e) => {
             if (password.value !== confirmPassword.value) {
                 e.preventDefault();
@@ -98,14 +157,14 @@
                 confirmPassword.style.borderColor = '#e0e0e0';
             }
         });
-        </script>
+    </script>
 
-        <% if (locals.success && locals.redirectTo) { %>
-            <script>
-                setTimeout(() => {
-                    window.location.href = "<%= redirectTo %>";
-                }, "<%= locals.delay || 1500 %>");
-            </script>
+    <% if (locals.success && locals.redirectTo) { %>
+        <script>
+            setTimeout(() => {
+                window.location.href = "<%= redirectTo %>";
+            }, "<%= locals.delay || 1500 %>");
+        </script>
         <% } %>
 
 </body>

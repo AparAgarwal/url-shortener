@@ -71,10 +71,23 @@ body {
     color: #999;
 }
 
-.password-hint {
-    font-size: 0.85rem;
-    color: #666;
+.password-hint-container{
+    padding-left: 20px;
     margin-top: 5px;
+}
+
+.password-hint {
+    font-size: 0.7rem;
+    color: #666;
+    transition: all 0.3s ease;
+}
+
+.password-hint.valid {
+    color: #28a745;
+}
+
+.password-hint.invalid {
+    color: #dc3545;
 }
 
 .submit-btn {
