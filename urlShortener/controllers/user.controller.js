@@ -2,27 +2,15 @@ import User from '../models/user.model.js';
 import asyncHandler from '../utils/asyncHandler.js';
 import ApiError from '../utils/ApiError.js';
 import ApiResponse from '../utils/ApiResponse.js';
-import { HTTP_STATUS, MESSAGES, REDIRECT_MESSAGES, REDIRECT_DELAY_MS } from '../constants.js';
+import {
+    HTTP_STATUS,
+    MESSAGES,
+    REDIRECT_MESSAGES,
+    REDIRECT_DELAY_MS,
+    COOKIE_ACCESS_TOKEN_EXPIRY,
+    COOKIE_REFRESH_TOKEN_EXPIRY
+} from '../constants.js';
 import { capitalize, isApiRequest, getCookieOptions } from '../utils/helpers.js';
-
-const generateAccessAndRefreshToken = async userId => {
-    try {
-        const user = await User.findById(userId);
-
-        const accessToken = user.generateAccessToken();
-        const refreshToken = user.generateRefreshToken();
-
-        user.refreshToken = refreshToken;
-        await user.save({ validateBeforeSave: false });
-
-        return { accessToken, refreshToken };
-    } catch (error) {
-        throw new ApiError(
-            HTTP_STATUS.INTERNAL_SERVER_ERROR,
-            error.message || MESSAGES.SOMETHING_WENT_WRONG
-        );
-    }
-};
 
 export const userSignUp = asyncHandler(async (req, res, next) => {
     // Data is already validated and sanitized by middleware
@@ -33,15 +21,19 @@ export const userSignUp = asyncHandler(async (req, res, next) => {
 
         const wantsJson = isApiRequest(req);
 
-        const { accessToken, refreshToken } = await generateAccessAndRefreshToken(user._id);
+        const accessToken = user.generateAccessToken();
+        const refreshToken = user.generateRefreshToken();
+        user.refreshToken = refreshToken;
+        user.refreshTokenCreatedAt = new Date();
+        await user.save({ validateBeforeSave: false });
 
-        const cookieOptions = getCookieOptions();
-
-        res.cookie('accessToken', accessToken, cookieOptions).cookie(
-            'refreshToken',
-            refreshToken,
-            cookieOptions
-        );
+        res.cookie('accessToken', accessToken, {
+            ...getCookieOptions(),
+            maxAge: COOKIE_ACCESS_TOKEN_EXPIRY
+        }).cookie('refreshToken', refreshToken, {
+            ...getCookieOptions(),
+            maxAge: COOKIE_REFRESH_TOKEN_EXPIRY
+        });
 
         if (wantsJson) {
             const userResponse = {
@@ -82,6 +74,7 @@ export const userSignUp = asyncHandler(async (req, res, next) => {
         throw new ApiError(HTTP_STATUS.INTERNAL_SERVER_ERROR, MESSAGES.SOMETHING_WENT_WRONG, err);
     }
 });
+
 export const userLogin = asyncHandler(async (req, res, next) => {
     // Data is already validated and sanitized by middleware
     const { identifier, password } = req.body;
@@ -92,10 +85,11 @@ export const userLogin = asyncHandler(async (req, res, next) => {
 
     // Need to select password explicitly since it's excluded by default
     const user = await User.findOne(identifierQuery).select('+password');
+    const isMatch = await user?.comparePassword(password);
 
     const wantsJson = isApiRequest(req);
 
-    if (!user) {
+    if (!user || !isMatch) {
         if (wantsJson) {
             throw new ApiError(HTTP_STATUS.UNAUTHORIZED, MESSAGES.INVALID_CREDENTIALS);
         }
@@ -105,26 +99,29 @@ export const userLogin = asyncHandler(async (req, res, next) => {
         });
     }
 
-    const isMatch = await user.comparePassword(password);
-    if (!isMatch) {
+    try {
+        const accessToken = user.generateAccessToken();
+        const refreshToken = user.generateRefreshToken();
+        user.refreshToken = refreshToken;
+        user.refreshTokenCreatedAt = new Date();
+        await user.save({ validateBeforeSave: false });
+
+        res.cookie('accessToken', accessToken, {
+            ...getCookieOptions(),
+            maxAge: COOKIE_ACCESS_TOKEN_EXPIRY
+        }).cookie('refreshToken', refreshToken, {
+            ...getCookieOptions(),
+            maxAge: COOKIE_REFRESH_TOKEN_EXPIRY
+        });
+    } catch (error) {
         if (wantsJson) {
-            throw new ApiError(HTTP_STATUS.UNAUTHORIZED, MESSAGES.INVALID_CREDENTIALS);
+            throw new ApiError(HTTP_STATUS.INTERNAL_SERVER_ERROR, MESSAGES.SOMETHING_WENT_WRONG);
         }
 
-        return res.status(HTTP_STATUS.UNAUTHORIZED).render('login', {
-            error: MESSAGES.INVALID_CREDENTIALS
+        return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).render('login', {
+            error: error.message || MESSAGES.SOMETHING_WENT_WRONG
         });
     }
-
-    const { accessToken, refreshToken } = await generateAccessAndRefreshToken(user._id);
-
-    const cookieOptions = getCookieOptions();
-
-    res.cookie('accessToken', accessToken, cookieOptions).cookie(
-        'refreshToken',
-        refreshToken,
-        cookieOptions
-    );
 
     if (wantsJson) {
         // Don't send password in response
@@ -148,7 +145,11 @@ export const userLogin = asyncHandler(async (req, res, next) => {
 });
 
 export const userLogout = asyncHandler(async (req, res) => {
-    await User.findByIdAndUpdate(req.user._id, { $unset: { refreshToken: 1 } }, { new: true });
+    await User.findByIdAndUpdate(
+        req.user._id,
+        { $unset: { refreshToken: 1, refreshTokenCreatedAt: 1 } },
+        { new: true }
+    );
 
     const cookieOptions = getCookieOptions();
 
@@ -164,52 +165,28 @@ export const userLogout = asyncHandler(async (req, res) => {
 
     // Render view for browser
     return res.render('logout', {
-        success: REDIRECT_MESSAGES.LOGOUT_SUCCESS,
         redirectTo: '/login',
         delay: 3000
     });
 });
 
 export const refreshAccessToken = asyncHandler(async (req, res) => {
-    const incomingRefreshToken = req.cookies?.refreshToken;
+    const accessToken = req.user.generateAccessToken();
+
+    res.cookie('accessToken', accessToken, {
+        ...getCookieOptions(),
+        maxAge: COOKIE_ACCESS_TOKEN_EXPIRY
+    }).cookie('refreshToken', req.newRefreshToken, {
+        ...getCookieOptions(),
+        maxAge: COOKIE_REFRESH_TOKEN_EXPIRY
+    });
+
     const wantsJson = isApiRequest(req);
 
-    if (!incomingRefreshToken) {
-        if (wantsJson) {
-            throw new ApiError(HTTP_STATUS.UNAUTHORIZED, MESSAGES.UNAUTHORIZED);
-        }
-        return res.redirect('/login');
-    }
-
-    const user = await User.findById(req.user?._id).select('+refreshToken');
-
-    if (!user || incomingRefreshToken !== user.refreshToken) {
-        if (wantsJson) {
-            throw new ApiError(HTTP_STATUS.UNAUTHORIZED, MESSAGES.UNAUTHORIZED);
-        }
-        return res.redirect('/login');
-    }
-
-    const { accessToken, refreshToken } = await generateAccessAndRefreshToken(user._id);
-
-    const cookieOptions = getCookieOptions();
-
-    res.cookie('accessToken', accessToken, cookieOptions).cookie(
-        'refreshToken',
-        refreshToken,
-        cookieOptions
-    );
-
     if (wantsJson) {
-        const userResponse = {
-            _id: user._id,
-            fullName: user.fullName,
-            username: user.username,
-            email: user.email
-        };
         return res
             .status(HTTP_STATUS.OK)
-            .json(new ApiResponse(HTTP_STATUS.OK, userResponse, MESSAGES.TOKEN_REFRESHED));
+            .json(new ApiResponse(HTTP_STATUS.OK, { accessToken }, MESSAGES.TOKEN_REFRESHED));
     }
 
     // Web refresh is silent — redirect back

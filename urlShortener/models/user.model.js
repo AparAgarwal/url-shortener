@@ -32,6 +32,12 @@ const userSchema = new mongoose.Schema(
         },
         refreshToken: {
             type: String,
+            select: false, // Excluding refreshToken from queries by default
+            sparse: true,
+            index: true
+        },
+        refreshTokenCreatedAt: {
+            type: Date, // Timestamp when refresh token was first issued
             select: false // Excluding refreshToken from queries by default
         }
     },

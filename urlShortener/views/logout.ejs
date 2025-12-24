@@ -15,13 +15,7 @@
             <p class="subtitle">You have been logged out successfully.</p>
             <p class="subtitle">Redirecting to login page...</p>
         </div>
-
-        <% if (locals.message || locals.success) { %>
-            <div class="success-message">
-                <%= locals.message || success %>
-            </div>
-        <% } %>
-
+        
         <div class="auth-footer">
             <p>If you are not redirected automatically, <a href="/login">click here</a>.</p>
             <div class="home-link">

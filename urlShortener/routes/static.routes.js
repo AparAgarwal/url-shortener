@@ -2,7 +2,7 @@ import express from 'express';
 import {
     restrictToLogin,
     verifyAccessToken,
-    verifyRefreshToken
+    verifyAndRotateRefreshToken
 } from '../middlewares/auth.middleware.js';
 import { getAllUrls, redirectToUrl, createShortUrl } from '../controllers/url.controller.js';
 import {
@@ -58,7 +58,7 @@ router.post('/user/login', loginValidation, userLogin);
 router.get('/logout', verifyAccessToken, userLogout);
 
 // Refresh token (web, silent)
-router.get('/refresh', verifyRefreshToken, refreshAccessToken);
+router.get('/refresh', verifyAndRotateRefreshToken, refreshAccessToken);
 
 // ===== URL Redirect (must be last) =====
 // GET /:shortId - Redirect to original URL (must be last to avoid conflicts)

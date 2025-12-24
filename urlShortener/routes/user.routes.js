@@ -6,7 +6,7 @@ import {
     refreshAccessToken
 } from '../controllers/user.controller.js';
 import { signupValidation, loginValidation } from '../middlewares/validators.js';
-import { verifyAccessToken, verifyRefreshToken } from '../middlewares/auth.middleware.js';
+import { verifyAccessToken, verifyAndRotateRefreshToken } from '../middlewares/auth.middleware.js';
 
 const router = express.Router();
 
@@ -23,5 +23,5 @@ router.post('/login', loginValidation, userLogin);
 
 // POST /api/v1/user/logout - User Logout
 router.post('/logout', verifyAccessToken, userLogout);
-router.post('/refresh-token', verifyRefreshToken, refreshAccessToken);
+router.post('/refresh-token', verifyAndRotateRefreshToken, refreshAccessToken);
 export default router;
