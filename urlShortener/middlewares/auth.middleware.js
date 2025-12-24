@@ -67,7 +67,7 @@ export const verifyAndRotateRefreshToken = asyncHandler(async (req, res, next) =
         user.refreshTokenCreatedAt = undefined;
         await user.save({ validateBeforeSave: false });
         if (!wantsJson) {
-            return res.redirect('login', {
+            return res.status(HTTP_STATUS.BAD_REQUEST).render('login', {
                 error: MESSAGES.SESSION_EXPIRED
             });
         }
@@ -89,16 +89,18 @@ export const verifyAndRotateRefreshToken = asyncHandler(async (req, res, next) =
 export const restrictToLogin = asyncHandler(async (req, res, next) => {
     const token = extractAccessToken(req);
     const refreshToken = extractRefreshToken(req);
-    if (!token && refreshToken) {
-        return res.redirect('/refresh');
-    } else if (!token && !refreshToken) {
+    if (!token && !refreshToken) {
         return res.redirect('login');
     }
+    if (!token && refreshToken) {
+        return res.redirect('/refresh');
+    }
+     
     let verifiedToken;
     try {
         verifiedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
     } catch (error) {
-        return res.status(HTTP_STATUS.UNAUTHORIZED).redirect('login', {
+        return res.status(HTTP_STATUS.UNAUTHORIZED).render('login', {
             error: MESSAGES.INVALID_TOKEN
         });
     }
