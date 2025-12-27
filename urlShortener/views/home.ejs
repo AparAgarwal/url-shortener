@@ -11,6 +11,12 @@
         <h1>🔗 URL Shortener</h1>
         <p class="subtitle">Get your URL shortened in a click</p>
 
+        <% if (locals.error) { %>
+            <div class="error-message">
+                ❌ <%= error %>
+            </div>
+        <% } %>
+
         <% if (locals.id) { %>
             <div class="success-message">
                 Your shortened URL is ready!
@@ -31,6 +37,7 @@
                     id="redirectUrl"
                     name="redirectUrl" 
                     placeholder="https://example.com"
+                    value="<%= locals.redirectUrl || '' %>"
                     required
                 >
             </div>

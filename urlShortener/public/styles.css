@@ -37,6 +37,17 @@ h1 {
     margin-bottom: 40px;
 }
 
+.error-message {
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+    padding: 15px 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    font-size: 0.95rem;
+    text-align: center;
+}
+
 .success-message {
     background: #d4edda;
     border: 1px solid #c3e6cb;
