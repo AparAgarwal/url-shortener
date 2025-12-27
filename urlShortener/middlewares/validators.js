@@ -52,16 +52,17 @@ export const createUrlValidation = [
         .withMessage('URL is required')
         .isLength({ max: MAX_URL_LENGTH })
         .withMessage(`URL is too long (max ${MAX_URL_LENGTH} characters)`)
-        .customSanitizer(value => {
-            // Add protocol if missing
-            if (!/^https?:\/\//i.test(value)) {
-                return `https://${value}`;
-            }
-            return value;
-        })
         .custom(value => {
+            // Require protocol explicitly
+            if (!/^https?:\/\//i.test(value)) {
+                throw new Error('URL must start with http:// or https://');
+            }
             try {
-                new URL(value);
+                const url = new URL(value);
+                // Block dangerous protocols
+                if (!['http:', 'https:'].includes(url.protocol)) {
+                    throw new Error('Only HTTP and HTTPS protocols are allowed');
+                }
                 return true;
             } catch {
                 throw new Error('Invalid URL format');
