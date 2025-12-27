@@ -11,13 +11,15 @@ import {
     COOKIE_REFRESH_TOKEN_EXPIRY
 } from '../constants.js';
 import { capitalize, isApiRequest, getCookieOptions } from '../utils/helpers.js';
+import { generateAvatarFromName } from '../utils/generateAvatars.js';
 
 export const userSignUp = asyncHandler(async (req, res, next) => {
     // Data is already validated and sanitized by middleware
     const { fullName, username, email, password } = req.body;
+    const avatarUrl = generateAvatarFromName(fullName);
 
     try {
-        const user = await User.create({ fullName, username, email, password });
+        const user = await User.create({ fullName, username, email, password, avatarUrl });
 
         const wantsJson = isApiRequest(req);
 
@@ -43,7 +45,8 @@ export const userSignUp = asyncHandler(async (req, res, next) => {
                 _id: user._id,
                 fullName: user.fullName,
                 username: user.username,
-                email: user.email
+                email: user.email,
+                avatarUrl: user.avatarUrl
             };
             return res
                 .status(HTTP_STATUS.CREATED)
