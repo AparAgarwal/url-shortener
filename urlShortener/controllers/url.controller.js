@@ -10,8 +10,25 @@ export const createShortUrl = asyncHandler(async (req, res, next) => {
     // URL is already validated and sanitized by middleware
     const { redirectUrl } = req.body;
 
-    const shortId = nanoid(SHORT_ID_LENGTH);
-    await Url.create({ shortId, redirectUrl });
+    let shortId;
+    let attempts = 0;
+    const MAX_ATTEMPTS = 5;
+
+    do {
+        shortId = nanoid(SHORT_ID_LENGTH);
+        const existing = await Url.findOne({ shortId });
+        if (!existing) break;
+        attempts++;
+    } while (attempts < MAX_ATTEMPTS);
+
+    if (attempts === MAX_ATTEMPTS) {
+        throw new ApiError(
+            HTTP_STATUS.INTERNAL_SERVER_ERROR,
+            'Failed to generate a unique short ID. Please try again.'
+        );
+    }
+
+    await Url.create({ shortId, redirectUrl, createdBy: req.user._id });
 
     const wantsJson = isApiRequest(req);
 
@@ -48,7 +65,7 @@ export const redirectToUrl = asyncHandler(async (req, res, next) => {
 
 export const deleteUrl = asyncHandler(async (req, res, next) => {
     const { shortId } = req.params;
-    const url = await Url.findOneAndDelete({ shortId });
+    const url = await Url.findOneAndDelete({ shortId, createdBy: req.user._id });
 
     if (!url) {
         throw new ApiError(HTTP_STATUS.NOT_FOUND, MESSAGES.URL_NOT_FOUND);
@@ -60,7 +77,7 @@ export const deleteUrl = asyncHandler(async (req, res, next) => {
 });
 
 export const getAllUrls = asyncHandler(async (req, res, next) => {
-    const urls = await Url.find().sort({ createdAt: -1 });
+    const urls = await Url.find({ createdBy: req.user._id }).sort({ createdAt: -1 });
 
     const wantsJson = isApiRequest(req);
 

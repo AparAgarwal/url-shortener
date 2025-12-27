@@ -29,7 +29,20 @@ const router = express.Router();
 // GET / - Home page
 router.get('/', restrictToLogin, (req, res) => {
     const shortId = req.query.shortId;
-    return res.render('home', { id: shortId || null });
+
+    // Get flash messages from cookies
+    const error = req.cookies.flash_error || null;
+    const redirectUrl = req.cookies.flash_redirectUrl || null;
+
+    // Clear flash cookies after reading
+    if (error) res.clearCookie('flash_error');
+    if (redirectUrl) res.clearCookie('flash_redirectUrl');
+
+    return res.render('home', {
+        id: shortId || null,
+        error,
+        redirectUrl
+    });
 });
 
 // GET /signup - Signup page
@@ -43,7 +56,7 @@ router.get('/login', (req, res) => {
 });
 
 // GET /manage-urls - View all URLs page
-router.get('/manage-urls', getAllUrls);
+router.get('/manage-urls', restrictToLogin, getAllUrls);
 
 // ===== Web Form Submissions =====
 // POST /url - Create short URL via web form
