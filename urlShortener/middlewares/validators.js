@@ -68,6 +68,28 @@ export const createUrlValidation = [
                 throw new Error('Invalid URL format');
             }
         }),
+    body('expiry')
+        .optional({ values: 'null' })
+        .custom(value => {
+            // Allow empty string, null, or undefined to be treated as no expiry
+            if (value === '' || value === null || value === undefined) {
+                return true;
+            }
+            const numValue = Number(value);
+            // Allow 0 for "never expires" or valid range 1 to 1 year
+            if (numValue === 0 || (numValue >= 1 && numValue <= 31536000)) {
+                return true;
+            }
+            throw new Error(
+                'Expiry must be 0 (never) or between 1 second and 1 year (31536000 seconds)'
+            );
+        })
+        .customSanitizer(value => {
+            if (value === '' || value === null || value === undefined) {
+                return null;
+            }
+            return Number(value);
+        }),
     validate
 ];
 

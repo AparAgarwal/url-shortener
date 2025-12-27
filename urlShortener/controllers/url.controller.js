@@ -8,8 +8,7 @@ import { isApiRequest } from '../utils/helpers.js';
 
 export const createShortUrl = asyncHandler(async (req, res, next) => {
     // URL is already validated and sanitized by middleware
-    const { redirectUrl } = req.body;
-
+    const { redirectUrl, expiry } = req.body;
     let shortId;
     let attempts = 0;
     const MAX_ATTEMPTS = 5;
@@ -28,8 +27,12 @@ export const createShortUrl = asyncHandler(async (req, res, next) => {
         );
     }
 
-    await Url.create({ shortId, redirectUrl, createdBy: req.user._id });
+    let expiresAt = null;
+    if (expiry && expiry > 0) {
+        expiresAt = new Date(Date.now() + expiry * 1000);
+    }
 
+    await Url.create({ shortId, redirectUrl, createdBy: req.user._id, expiresAt });
     const wantsJson = isApiRequest(req);
 
     if (wantsJson) {
@@ -60,6 +63,11 @@ export const redirectToUrl = asyncHandler(async (req, res, next) => {
         throw new ApiError(HTTP_STATUS.NOT_FOUND, MESSAGES.URL_NOT_FOUND);
     }
 
+    // Check if URL has expired; TTL index will handle physical deletion
+    if (url.expiresAt && new Date(url.expiresAt) < new Date()) {
+        throw new ApiError(HTTP_STATUS.NOT_FOUND, 'This short URL has expired');
+    }
+
     return res.redirect(url.redirectUrl);
 });
 
@@ -77,7 +85,11 @@ export const deleteUrl = asyncHandler(async (req, res, next) => {
 });
 
 export const getAllUrls = asyncHandler(async (req, res, next) => {
-    const urls = await Url.find({ createdBy: req.user._id }).sort({ createdAt: -1 });
+    const now = new Date();
+    const urls = await Url.find({
+        createdBy: req.user._id,
+        $or: [{ expiresAt: null }, { expiresAt: { $gt: now } }]
+    }).sort({ createdAt: -1 });
 
     const wantsJson = isApiRequest(req);
 

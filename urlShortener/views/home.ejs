@@ -45,6 +45,13 @@
                     required
                 >
             </div>
+            <div class="expiry-btn">
+                <label for="expiry">Set Expiry Time:</label>
+                <span data-value="3600">1 Hour</span>
+                <span data-value="86400">1 Day</span>
+                <span data-value="604800">1 Week</span>
+                <span data-value="0">Never</span>
+            </div>
             <button type="submit">Generate Shortened URL</button>
         </form>
 
@@ -74,6 +81,26 @@
             }).catch(() => {
                 alert('Failed to copy URL');
             });
+        }
+
+        const expiryButtons = document.querySelectorAll('.expiry-btn span');
+        const expiryInput = document.createElement('input');
+        expiryInput.type = 'hidden';
+        expiryInput.name = 'expiry';
+        document.querySelector('form').appendChild(expiryInput);
+
+        expiryButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                expiryButtons.forEach(btn => btn.removeAttribute('selected'));
+                button.setAttribute('selected', '');
+                expiryInput.value = button.getAttribute('data-value');
+            });
+        });
+
+        // Set default expiry value if available
+        if (expiryInput.value === '') {
+            expiryInput.value = '3600'; // Default to 1 Hour
+            expiryButtons[0].setAttribute('selected', '');
         }
     </script>
 </body>

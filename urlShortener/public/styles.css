@@ -181,6 +181,37 @@ input[type="text"]::placeholder {
     color: #999;
 }
 
+.expiry-btn {
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+}
+
+.expiry-btn label {
+    margin-right: 15px;
+    margin-bottom: 0;
+}
+
+.expiry-btn span {
+    padding: 3px 10px;
+    margin-right: 10px;
+    border: 2px solid #e0e0e0;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.75rem;
+    color: #333;
+}
+.expiry-btn span:hover {
+    border-color: #1a1a1a;
+    background: #f0f4ff;
+}
+.expiry-btn span[selected] {
+    background-color: #2c2c2c;
+    border-color: #2c2c2c;
+    color: white;
+}
+
 button {
     width: 100%;
     padding: 15px;

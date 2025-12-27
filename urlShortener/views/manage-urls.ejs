@@ -31,6 +31,7 @@
                         <th>Short ID</th>
                         <th>Original URL</th>
                         <th>Total Clicks</th>
+                        <th>Expires At</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -50,6 +51,11 @@
                             <td>
                                 <div class="analytics">
                                     <%= url.clickCount %>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="expiry-date">
+                                    <%= url.expiresAt ? new Date(url.expiresAt).toLocaleString() : 'Never' %>
                                 </div>
                             </td>
                             <td>

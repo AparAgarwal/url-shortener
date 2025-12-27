@@ -18,6 +18,10 @@ const urlSchema = new mongoose.Schema(
             required: true,
             index: true
         },
+        expiresAt: {
+            type: Date,
+            default: null
+        },
         clickCount: {
             type: Number,
             default: 0
@@ -28,6 +32,9 @@ const urlSchema = new mongoose.Schema(
     },
     { timestamps: true }
 );
+
+// TTL index to automatically delete expired URLs
+urlSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
 const Url = mongoose.model('Url', urlSchema);
 
