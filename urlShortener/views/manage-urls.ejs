@@ -30,6 +30,7 @@
                     <tr>
                         <th>Short ID</th>
                         <th>Original URL</th>
+                        <th>Total Clicks</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -44,6 +45,11 @@
                             <td>
                                 <div class="redirect-url">
                                     <%= url.redirectUrl %>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="analytics">
+                                    <%= url.clickCount %>
                                 </div>
                             </td>
                             <td>
