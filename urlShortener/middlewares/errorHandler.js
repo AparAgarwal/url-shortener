@@ -44,7 +44,7 @@ const errorHandler = (err, req, res, next) => {
             'manage-urls': 'manage-urls'
         };
 
-        const viewName = viewMap[routeName] || 'home';
+        const viewName = viewMap[routeName] || 'error';
 
         return res.status(statusCode).render(viewName, {
             error: message,
