@@ -1,7 +1,7 @@
 # 🔗 URL Shortener
 
-[![Deployment Status](https://img.shields.io/badge/deployment-live-brightgreen)](https://url-shortener-deployment.onrender.com)
-[![Render](https://img.shields.io/badge/Render-Deployed-46E3B7?logo=render&logoColor=white)](https://url-shortener-deployment.onrender.com)
+[![Deployment Status](https://img.shields.io/badge/deployment-live-brightgreen)](https://url-shortener-35e5.onrender.com)
+[![Render](https://img.shields.io/badge/Render-Deployed-46E3B7?logo=render&logoColor=white)](https://url-shortener-35e5.onrender.com)
 ![Node.js](https://img.shields.io/badge/Node.js-339933?logo=node.js&logoColor=white)
 ![Express](https://img.shields.io/badge/Express-000000?logo=express&logoColor=white)
 ![MongoDB](https://img.shields.io/badge/MongoDB-47A248?logo=mongodb&logoColor=white)
@@ -15,30 +15,30 @@ A modern, secure URL shortening service built with Node.js, Express, and MongoDB
 
 ## 🌐 Live Demo
 
-**[Try it live on Render](https://url-shortener-deployment.onrender.com)** 🚀
+**[Try it live on Render](https://url-shortener-35e5.onrender.com)** 🚀
 
 > ⏱️ **Note**: This application is hosted on Render's free tier. If the service hasn't been used recently, the first request may take 30-60 seconds as the instance spins up from sleep mode. Subsequent requests will be fast!
 
 ## 📋 Table of Contents
 
-- [Live Demo](#-live-demo)
-- [Features](#-features)
-- [Tech Stack](#-tech-stack)
-- [Project Structure](#-project-structure)
-- [Prerequisites](#-prerequisites)
-- [Installation](#-installation)
-- [Configuration](#-configuration)
-- [Deployment](#-deployment)
-- [Running the Application](#-running-the-application)
-- [API Endpoints](#-api-endpoints)
-- [Security Features](#-security-features)
-- [Development](#-development)
-- [Testing the Application](#-testing-the-application)
+- [Live Demo](#live-demo)
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Project Structure](#project-structure)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Deployment](#deployment)
+- [Running the Application](#running-the-application)
+- [API Endpoints](#api-endpoints)
+- [Security Features](#security-features)
+- [Development](#development)
+- [Testing the Application](#testing-the-application)
 - [Recommended Development Tools](#recommended-development-tools)
-- [Project Notes](#-project-notes)
-- [Author](#-author)
-- [License](#-license)
-- [Show Your Support](#-show-your-support)
+- [Project Notes](#project-notes)
+- [Author](#author)
+- [License](#license)
+- [Show Your Support](#show-your-support)
 
 ## ✨ Features
 
@@ -687,7 +687,7 @@ curl http://localhost:3000/api/v1/url
 - JWT-based authentication with HTTP-only cookies
 - Passwords hashed with bcrypt (12 salt rounds)
 - Short IDs generated with nanoid (8 characters)
-- File uploads handled by Multer with Cloudinary storage
+- Avatars auto-generated via UI Avatars API based on user names
 - Centralized error handling
 - Content negotiation for API/Web responses
 - Click analytics tracked atomically
@@ -721,6 +721,6 @@ If you find this project helpful or interesting, please consider giving it a sta
   <p>
     <a href="https://github.com/AparAgarwal/url-shortener">View on GitHub</a>
     ·
-    <a href="https://url-shortener-deployment.onrender.com">Live Demo</a>
+    <a href="https://url-shortener-35e5.onrender.com">Live Demo</a>
   </p>
 </div>
