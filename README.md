@@ -1,15 +1,34 @@
-# URL Shortener
+# 🔗 URL Shortener
+
+[![Deployment Status](https://img.shields.io/badge/deployment-live-brightgreen)](https://url-shortener-deployment.onrender.com)
+[![Render](https://img.shields.io/badge/Render-Deployed-46E3B7?logo=render&logoColor=white)](https://url-shortener-deployment.onrender.com)
+![Node.js](https://img.shields.io/badge/Node.js-339933?logo=node.js&logoColor=white)
+![Express](https://img.shields.io/badge/Express-000000?logo=express&logoColor=white)
+![MongoDB](https://img.shields.io/badge/MongoDB-47A248?logo=mongodb&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?logo=javascript&logoColor=black)
+![EJS](https://img.shields.io/badge/EJS-B4CA65?logo=ejs&logoColor=black)
+![CSS3](https://img.shields.io/badge/CSS3-1572B6?logo=css3&logoColor=white)
+
+> **Convert lengthy URLs into compact, easy-to-share links**
 
 A modern, secure URL shortening service built with Node.js, Express, and MongoDB. Features include user authentication, click analytics, input validation, and a clean web interface with RESTful API support.
 
+## 🌐 Live Demo
+
+**[Try it live on Render](https://url-shortener-deployment.onrender.com)** 🚀
+
+> ⏱️ **Note**: This application is hosted on Render's free tier. If the service hasn't been used recently, the first request may take 30-60 seconds as the instance spins up from sleep mode. Subsequent requests will be fast!
+
 ## 📋 Table of Contents
 
+- [Live Demo](#-live-demo)
 - [Features](#-features)
 - [Tech Stack](#-tech-stack)
 - [Project Structure](#-project-structure)
 - [Prerequisites](#-prerequisites)
 - [Installation](#-installation)
 - [Configuration](#-configuration)
+- [Deployment](#-deployment)
 - [Running the Application](#-running-the-application)
 - [API Endpoints](#-api-endpoints)
 - [Security Features](#-security-features)
@@ -17,39 +36,78 @@ A modern, secure URL shortening service built with Node.js, Express, and MongoDB
 - [Testing the Application](#-testing-the-application)
 - [Recommended Development Tools](#recommended-development-tools)
 - [Project Notes](#-project-notes)
-- [Contributing](#-contributing)
 - [Author](#-author)
+- [License](#-license)
+- [Show Your Support](#-show-your-support)
 
 ## ✨ Features
 
-- **URL Shortening**: Convert long URLs into short, manageable links with automatic protocol detection
-- **Click Analytics**: Track click counts and last clicked timestamps for each URL
-- **User Authentication**: Secure signup and login with JWT-based authentication and bcrypt password hashing
-- **Profile Management**: User profile page with avatar upload and management capabilities
-- **URL Management**: View, copy, and delete shortened URLs through an intuitive dashboard
-- **File Upload**: Image upload support with Cloudinary integration for avatar management
-- **Input Validation**: Comprehensive validation and sanitization using express-validator
-- **Security**: JWT authentication, NoSQL injection prevention, XSS protection, and password security
-- **Responsive UI**: Clean, modern web interface built with EJS templates
-- **Error Handling**: Centralized error handling with detailed logging
-- **RESTful API**: Well-structured API with content negotiation (JSON/HTML)
-- **Environment Validation**: Startup validation ensures all required configurations are present
-- **Database Resilience**: Connection retry logic with graceful degradation
+### Core Functionality
+
+- **🔗 URL Shortening**: Convert long URLs into short, manageable links with automatic protocol detection
+- **📊 Click Analytics**: Track click counts and last clicked timestamps for each URL
+- **⚡ Fast Redirects**: Optimized redirect mechanism with atomic click tracking
+- **🔍 URL Management**: View, copy, and delete shortened URLs through an intuitive dashboard
+
+### User Experience
+
+- **👤 User Authentication**: Secure signup and login with JWT-based authentication and bcrypt password hashing
+- **🖼️ Profile Management**: User profile page with avatar upload and management capabilities
+- **📱 Responsive UI**: Clean, modern web interface built with EJS templates
+- **🎨 Clean Interface**: Intuitive design with easy-to-use forms and dashboards
+
+### Security & Validation
+
+- **🔐 Security First**: JWT authentication, NoSQL injection prevention, XSS protection, and password security
+- **✅ Input Validation**: Comprehensive validation and sanitization using express-validator
+- **🛡️ Protected Routes**: Middleware-based authentication for secure access
+- **🔒 Password Security**: Bcrypt hashing with 12 salt rounds
+
+### Technical Features
+
+- **🌐 RESTful API**: Well-structured API with content negotiation (JSON/HTML)
+- **☁️ File Upload**: Image upload support with Cloudinary integration for avatar management
+- **⚠️ Error Handling**: Centralized error handling with detailed logging
+- **✓ Environment Validation**: Startup validation ensures all required configurations are present
+- **🔄 Database Resilience**: Connection retry logic with graceful degradation
 
 ## 🛠 Tech Stack
 
+### Backend
+
 - **Runtime**: Node.js (ES Modules)
 - **Framework**: Express.js v5
-- **Database**: MongoDB with Mongoose ODM
+- **Database**: MongoDB Atlas with Mongoose ODM
+- **Architecture**: MVC Pattern
+
+### Frontend
+
 - **Template Engine**: EJS
+- **Styling**: CSS3
+- **Static Assets**: serve-favicon
+
+### Authentication & Security
+
 - **Authentication**: JWT (jsonwebtoken) + bcrypt (salt rounds: 12)
 - **Validation**: express-validator
-- **File Upload**: Multer + Cloudinary
-- **ID Generation**: nanoid (8-character IDs)
+- **Security**: NoSQL injection prevention, XSS protection
+
+### File Management
+
+- **File Upload**: Multer
+- **Cloud Storage**: Cloudinary
+
+### Development Tools
+
 - **Environment**: dotenv
-- **Middleware**: cookie-parser, express.json, express.urlencoded, multer, JWT auth
+- **ID Generation**: nanoid (8-character IDs)
 - **Code Quality**: ESLint 9 + Prettier
-- **Static Assets**: serve-favicon
+
+### Deployment
+
+- **Platform**: Render
+- **Database**: MongoDB Atlas (Cloud)
+- **Environment**: Production-ready with environment validation
 
 ## 📁 Project Structure
 
@@ -115,61 +173,163 @@ Before you begin, ensure you have the following installed:
 
 ## 🚀 Installation
 
-1. **Clone the repository**:
+Follow these steps to get the application running on your local machine:
 
-    ```bash
-    git clone <repository-url>
-    cd urlShortener
-    ```
+### 1. Clone the Repository
 
-2. **Install dependencies**:
-    ```bash
-    npm install
-    ```
+```bash
+git clone https://github.com/AparAgarwal/url-shortener.git
+cd url-shortener
+```
+
+### 2. Install Dependencies
+
+```bash
+npm install
+```
+
+This will install all required packages listed in `package.json`.
+
+### 3. Configure Environment Variables
+
+Create a `.env` file in the root directory:
+
+```bash
+cp .env.sample .env
+```
+
+Or on Windows:
+
+```powershell
+copy .env.sample .env
+```
+
+### 4. Set Up Environment Variables
+
+Edit the `.env` file with your configuration:
+
+```env
+PORT=3000
+MONGO_URI="mongodb://localhost:27017/shorturl"
+NODE_ENV="development"
+BASE_URL="http://localhost:3000"
+ACCESS_TOKEN_SECRET="your_secret_key_here"
+ACCESS_TOKEN_EXPIRY="15m"
+REFRESH_TOKEN_SECRET="your_refresh_secret_here"
+REFRESH_TOKEN_EXPIRY="7d"
+```
+
+**Generate secure secrets** using:
+
+```bash
+node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
+```
+
+### 5. Start MongoDB
+
+If using local MongoDB:
+
+```bash
+# Windows
+net start MongoDB
+
+# macOS/Linux
+sudo systemctl start mongod
+```
+
+Or use **MongoDB Atlas** (cloud) - get your connection string from [MongoDB Atlas](https://www.mongodb.com/cloud/atlas).
+
+### 6. Run the Application
+
+**Development mode** (with auto-restart):
+
+```bash
+npm run dev
+```
+
+**Production mode**:
+
+```bash
+npm start
+```
+
+The server will start at `http://localhost:3000` ✨
 
 ## ⚙️ Configuration
 
-1. **Create environment file**:
-    - Copy the `.env.sample` file to `.env`:
-        ```bash
-        cp .env.sample .env
-        ```
-        Or on Windows:
-        ```powershell
-        copy .env.sample .env
-        ```
+### Required Environment Variables
 
-2. **Configure environment variables** in `.env`:
+| Variable               | Description                             | Example                                |
+| ---------------------- | --------------------------------------- | -------------------------------------- |
+| `PORT`                 | Port number for the server              | `3000`                                 |
+| `MONGO_URI`            | MongoDB connection string               | `mongodb://localhost:27017/shorturl`   |
+| `NODE_ENV`             | Environment mode                        | `development` or `production`          |
+| `BASE_URL`             | Base URL for generating short links     | `http://localhost:3000`                |
+| `ACCESS_TOKEN_SECRET`  | Secret key for JWT token generation     | Generated using crypto.randomBytes(64) |
+| `ACCESS_TOKEN_EXPIRY`  | JWT access token expiration time        | `15m`, `1h`, `7d`                      |
+| `REFRESH_TOKEN_SECRET` | Secret key for refresh token generation | Generated using crypto.randomBytes(64) |
+| `REFRESH_TOKEN_EXPIRY` | JWT refresh token expiration time       | `7d`, `30d`                            |
 
-    ```env
-    PORT=3000
-    MONGO_URI="mongodb://localhost:27017/shorturl"
-    NODE_ENV="development"
-    BASE_URL="http://localhost:3000"
-    ```
+### MongoDB Connection Options
 
-    **Environment Variables Explained**:
-    - `PORT`: Port number where the server will run (default: 3000)
-    - `MONGO_URI`: MongoDB connection string
-        - For local MongoDB: `mongodb://localhost:27017/shorturl`
-        - For MongoDB Atlas: `mongodb+srv://<username>:<password>@cluster.mongodb.net/shorturl`
-    - `NODE_ENV`: Environment mode (`development` or `production`)
-    - `BASE_URL`: Base URL for generating short links
-    - `JWT_SECRET`: Secret key for JWT token generation and verification
-    - `JWT_EXPIRY`: JWT token expiration time (e.g., "7d", "24h")
-    - `CLOUDINARY_CLOUD_NAME`: Cloudinary cloud name for image uploads
-    - `CLOUDINARY_API_KEY`: Cloudinary API key
-    - `CLOUDINARY_API_SECRET`: Cloudinary API secret
+**Local MongoDB**:
 
-3. **Start MongoDB** (if using local installation):
+```env
+MONGO_URI="mongodb://localhost:27017/shorturl"
+```
 
-    ```bash
-    # Windows
-    net start MongoDB
+**MongoDB Atlas** (Cloud):
 
-    # macOS/Linux
-    sudo systemctl start mongod
-    ```
+```env
+MONGO_URI="mongodb+srv://<username>:<password>@cluster.mongodb.net/shorturl"
+```
+
+Get your MongoDB Atlas connection string:
+
+1. Sign up at [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
+2. Create a free cluster
+3. Get your connection string from the "Connect" button
+4. Replace `<username>` and `<password>` with your credentials
+
+## 🚀 Deployment
+
+### Deploying to Render
+
+This application is optimized for deployment on [Render](https://render.com):
+
+#### Steps:
+
+1. **Create a Render Account**: Sign up at [Render](https://render.com)
+
+2. **Create a New Web Service**:
+    - Connect your GitHub repository
+    - Select "url-shortener" repository
+    - Configure the service
+
+3. **Configure Build Settings**:
+    - **Build Command**: `npm install`
+    - **Start Command**: `npm start`
+
+4. **Set Environment Variables** in Render Dashboard:
+
+    | Variable               | Value                                                      |
+    | ---------------------- | ---------------------------------------------------------- |
+    | `MONGO_URI`            | Your MongoDB Atlas connection string                       |
+    | `BASE_URL`             | Your Render app URL (e.g., `https://yourapp.onrender.com`) |
+    | `NODE_ENV`             | `production`                                               |
+    | `ACCESS_TOKEN_SECRET`  | Generate using `crypto.randomBytes(64).toString('hex')`    |
+    | `ACCESS_TOKEN_EXPIRY`  | `15m` (or your preferred expiry)                           |
+    | `REFRESH_TOKEN_SECRET` | Generate using `crypto.randomBytes(64).toString('hex')`    |
+    | `REFRESH_TOKEN_EXPIRY` | `7d` (or your preferred expiry)                            |
+
+5. **Deploy**: Render will automatically build and deploy your application
+
+#### Important Notes:
+
+- ⏱️ **Free Tier Limitation**: Render's free tier puts services to sleep after 15 minutes of inactivity. The first request after sleep will take 30-60 seconds.
+- 🗄️ **Database**: Use MongoDB Atlas (cloud) for production, not local MongoDB
+- 🔐 **Security**: Never commit `.env` files or expose secrets in your repository
+- 🔄 **Auto-Deploy**: Enable auto-deploy in Render to automatically deploy when you push to your main branch
 
 ## 🏃 Running the Application
 
@@ -536,10 +696,32 @@ curl http://localhost:3000/api/v1/url
 - Protected routes using JWT verification middleware
 - Avatar images stored on Cloudinary CDN
 
-## 🤝 Contributing
-
-This is a learning project. Feel free to fork and experiment!
-
 ## 👨‍💻 Author
 
 **Apar Agarwal**
+
+- GitHub: [@AparAgarwal](https://github.com/AparAgarwal)
+- Repository: [url-shortener](https://github.com/AparAgarwal/url-shortener)
+
+## 📄 License
+
+This project is licensed under the **ISC License**.
+
+## ⭐ Show Your Support
+
+If you find this project helpful or interesting, please consider giving it a star on GitHub! ⭐
+
+[![GitHub Stars](https://img.shields.io/github/stars/AparAgarwal/url-shortener?style=social)](https://github.com/AparAgarwal/url-shortener)
+
+**[⭐ Star this repository](https://github.com/AparAgarwal/url-shortener)** to show your support and help others discover this project!
+
+---
+
+<div align="center">
+  <p>Built with ❤️ by Apar Agarwal</p>
+  <p>
+    <a href="https://github.com/AparAgarwal/url-shortener">View on GitHub</a>
+    ·
+    <a href="https://url-shortener-deployment.onrender.com">Live Demo</a>
+  </p>
+</div>
