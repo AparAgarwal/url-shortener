@@ -92,10 +92,9 @@ A modern, secure URL shortening service built with Node.js, Express, and MongoDB
 - **Validation**: express-validator
 - **Security**: NoSQL injection prevention, XSS protection
 
-### File Management
+### Avatar Generation
 
-- **File Upload**: Multer
-- **Cloud Storage**: Cloudinary
+- **Avatars**: UI Avatars API for dynamic avatar images (no file uploads or cloud storage required)
 
 ### Development Tools
 
