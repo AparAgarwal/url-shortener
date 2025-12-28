@@ -52,7 +52,7 @@ A modern, secure URL shortening service built with Node.js, Express, and MongoDB
 ### User Experience
 
 - **👤 User Authentication**: Secure signup and login with JWT-based authentication and bcrypt password hashing
-- **🖼️ Profile Management**: User profile page with avatar upload and management capabilities
+- **🖼️ Profile Management**: User profile page with auto-generated avatars based on user names and profile management capabilities
 - **📱 Responsive UI**: Clean, modern web interface built with EJS templates
 - **🎨 Clean Interface**: Intuitive design with easy-to-use forms and dashboards
 
