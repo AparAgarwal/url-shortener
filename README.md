@@ -693,7 +693,7 @@ curl http://localhost:3000/api/v1/url
 - Click analytics tracked atomically
 - Environment variables validated at startup
 - Protected routes using JWT verification middleware
-- Avatar images stored on Cloudinary CDN
+- Avatar images dynamically generated via UI Avatars API (ui-avatars.com)
 
 ## 👨‍💻 Author
 
