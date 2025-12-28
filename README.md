@@ -66,7 +66,7 @@ A modern, secure URL shortening service built with Node.js, Express, and MongoDB
 ### Technical Features
 
 - **🌐 RESTful API**: Well-structured API with content negotiation (JSON/HTML)
-- **☁️ File Upload**: Image upload support with Cloudinary integration for avatar management
+- **☁️ Avatar Generation**: Automatic avatar images via the UI Avatars API based on user names (no file upload required)
 - **⚠️ Error Handling**: Centralized error handling with detailed logging
 - **✓ Environment Validation**: Startup validation ensures all required configurations are present
 - **🔄 Database Resilience**: Connection retry logic with graceful degradation
