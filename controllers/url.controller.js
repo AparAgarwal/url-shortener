@@ -3,7 +3,7 @@ import Url from '../models/url.model.js';
 import asyncHandler from '../utils/asyncHandler.js';
 import ApiError from '../utils/ApiError.js';
 import ApiResponse from '../utils/ApiResponse.js';
-import { SHORT_ID_LENGTH, HTTP_STATUS, MESSAGES } from '../constants.js';
+import { SHORT_ID_LENGTH, HTTP_STATUS, MESSAGES, BASE_URL } from '../constants.js';
 import { isApiRequest } from '../utils/helpers.js';
 
 export const createShortUrl = asyncHandler(async (req, res, next) => {
@@ -99,5 +99,5 @@ export const getAllUrls = asyncHandler(async (req, res, next) => {
             .json(new ApiResponse(HTTP_STATUS.OK, urls, MESSAGES.URLS_FETCHED));
     }
 
-    return res.render('manage-urls', { urls });
+    return res.render('manage-urls', { urls, baseUrl: BASE_URL });
 });

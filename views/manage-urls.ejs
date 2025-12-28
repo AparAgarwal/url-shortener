@@ -82,7 +82,7 @@
 
     <script>
         function copyShortId(shortId, button) {
-            const fullUrl = `http://localhost:3000/${shortId}`;
+            const fullUrl = `<%= baseUrl %>/${shortId}`;
             const originalText = button.innerText;
 
             navigator.clipboard.writeText(fullUrl)

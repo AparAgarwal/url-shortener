@@ -11,6 +11,7 @@ export const SHORT_ID_LENGTH = 8;
 export const MAX_URL_LENGTH = 2048;
 export const MIN_SHORT_ID_LENGTH = 8;
 export const MAX_SHORT_ID_LENGTH = 8;
+export const BASE_URL = process.env.BASE_URL;
 
 // User Validation
 export const MIN_USERNAME_LENGTH = 3;

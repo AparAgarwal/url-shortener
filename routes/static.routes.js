@@ -6,6 +6,7 @@ import {
     redirectIfLoggedIn
 } from '../middlewares/auth.middleware.js';
 import { getAllUrls, redirectToUrl, createShortUrl } from '../controllers/url.controller.js';
+import { BASE_URL } from '../constants.js';
 import {
     userSignUp,
     userLogin,
@@ -44,7 +45,8 @@ router.get('/', restrictToLogin, (req, res) => {
         id: shortId,
         error,
         redirectUrl,
-        user
+        user,
+        baseUrl: BASE_URL
     });
 });
 

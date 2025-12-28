@@ -10,7 +10,8 @@ const validateEnv = () => {
         'ACCESS_TOKEN_SECRET',
         'REFRESH_TOKEN_SECRET',
         'ACCESS_TOKEN_EXPIRY',
-        'REFRESH_TOKEN_EXPIRY'
+        'REFRESH_TOKEN_EXPIRY',
+        'BASE_URL'
     ];
 
     const missing = requiredEnvVars.filter(varName => !process.env[varName]);
