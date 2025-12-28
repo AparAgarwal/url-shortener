@@ -2,7 +2,8 @@ import express from 'express';
 import {
     restrictToLogin,
     verifyAccessToken,
-    verifyAndRotateRefreshToken
+    verifyAndRotateRefreshToken,
+    redirectIfLoggedIn
 } from '../middlewares/auth.middleware.js';
 import { getAllUrls, redirectToUrl, createShortUrl } from '../controllers/url.controller.js';
 import {
@@ -48,12 +49,12 @@ router.get('/', restrictToLogin, (req, res) => {
 });
 
 // GET /signup - Signup page
-router.get('/signup', (req, res) => {
+router.get('/signup', redirectIfLoggedIn, (req, res) => {
     return res.render('signup');
 });
 
 // GET /login - Login page
-router.get('/login', (req, res) => {
+router.get('/login', redirectIfLoggedIn, (req, res) => {
     return res.render('login');
 });
 

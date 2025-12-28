@@ -222,3 +222,58 @@ export const restrictToLogin = asyncHandler(async (req, res, next) => {
     // Shouldn't reach here, but redirect to login as fallback
     return res.redirect('/login');
 });
+
+export const redirectIfLoggedIn = asyncHandler(async (req, res, next) => {
+    const token = extractAccessToken(req);
+    const refreshToken = extractRefreshToken(req);
+
+    // No tokens at all - user is not logged in, allow access to login/signup
+    if (!token && !refreshToken) {
+        return next();
+    }
+
+    // Verify access token validity
+    if (token) {
+        try {
+            const verifiedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+            const user = await User.findById(verifiedToken?._id).select('+tokenVersion');
+
+            // If user exists and token is valid, redirect to home
+            if (user && verifiedToken.tokenVersion === user.tokenVersion) {
+                return res.redirect('/');
+            }
+        } catch (error) {
+            // Token expired or invalid - check refresh token next
+        }
+    }
+
+    // If access token is expired/invalid but refresh token exists, verify refresh token
+    if (refreshToken) {
+        try {
+            const verifiedRefreshToken = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+            const user = await User.findById(verifiedRefreshToken?._id).select(
+                '+refreshTokenHash +refreshTokenCreatedAt +tokenVersion'
+            );
+
+            // Verify refresh token is valid
+            if (user) {
+                const isValidRefreshToken = await user.verifyRefreshToken(refreshToken);
+
+                // Check absolute expiry
+                const now = Date.now();
+                const absoluteExpiry =
+                    new Date(user.refreshTokenCreatedAt).getTime() + REFRESH_TOKEN_ABSOLUTE_EXPIRY;
+
+                // If refresh token is valid and not expired, user is logged in
+                if (isValidRefreshToken && now <= absoluteExpiry) {
+                    return res.redirect('/');
+                }
+            }
+        } catch (error) {
+            // Refresh token invalid or expired - allow access to login/signup
+        }
+    }
+
+    // No valid tokens - allow access to login/signup
+    return next();
+});
