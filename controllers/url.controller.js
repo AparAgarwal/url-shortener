@@ -43,7 +43,8 @@ export const createShortUrl = asyncHandler(async (req, res, next) => {
             );
     }
 
-    return res.redirect(`/?shortId=${shortId}`);
+    // Use 303 See Other to force GET request after POST
+    return res.redirect(303, `/?shortId=${shortId}`);
 });
 
 export const redirectToUrl = asyncHandler(async (req, res, next) => {
