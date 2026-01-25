@@ -7,8 +7,10 @@ const MAX_RETRIES = 5;
 const RETRY_DELAY_MS = 1000;
 
 const CONNECTION_OPTIONS = {
-    serverSelectionTimeoutMS: 5000,
-    connectTimeoutMS: 5000
+    serverSelectionTimeoutMS: 30000, // 30 seconds for serverless cold starts
+    connectTimeoutMS: 30000, // 30 seconds to establish connection
+    maxPoolSize: 10, // Connection pool for serverless reuse
+    minPoolSize: 1 // Keep at least 1 connection alive
 };
 
 mongoose.set('bufferCommands', false);
