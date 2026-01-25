@@ -4,8 +4,28 @@ import mongoose from 'mongoose';
 import validateEnv from '../utils/validateEnv.js';
 import connectDB from '../config/db.js';
 
-// Validate environment variables
-validateEnv();
+
+// Initialize once flag
+let initialized = false;
+
+// Initialize serverless environment
+const initializeServerless = () => {
+    if (initialized) return;
+
+    try {
+        // Validate environment variables (skip PORT validation for Vercel)
+        validateEnv();
+        initialized = true;
+    } catch (error) {
+        // If validation fails due to PORT, check if we're in serverless (Vercel)
+        if (error.message.includes('PORT') && process.env.VERCEL) {
+            console.log('⚠️ Skipping PORT validation in Vercel serverless environment');
+            initialized = true;
+        } else {
+            throw error;
+        }
+    }
+};
 
 // Connect to MongoDB (with connection pooling for serverless)
 const connectToDatabase = async () => {
@@ -38,6 +58,9 @@ const connectToDatabase = async () => {
 // Vercel serverless function handler
 export default async (req, res) => {
     try {
+        // Initialize environment (only runs once)
+        initializeServerless();
+
         // Ensure database is connected
         await connectToDatabase();
 
