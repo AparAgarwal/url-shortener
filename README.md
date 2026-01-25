@@ -1,7 +1,7 @@
 # 🔗 URL Shortener
 
-[![Deployment Status](https://img.shields.io/badge/deployment-live-brightgreen)](https://url-shortener-35e5.onrender.com)
-[![Render](https://img.shields.io/badge/Render-Deployed-46E3B7?logo=render&logoColor=white)](https://url-shortener-35e5.onrender.com)
+[![Deployment Status](https://img.shields.io/badge/deployment-live-brightgreen)](https://url.aparagarwal.tech)
+[![Vercel](https://img.shields.io/badge/Vercel-Deployed-000000?logo=vercel&logoColor=white)](https://url.aparagarwal.tech)
 ![Node.js](https://img.shields.io/badge/Node.js-339933?logo=node.js&logoColor=white)
 ![Express](https://img.shields.io/badge/Express-000000?logo=express&logoColor=white)
 ![MongoDB](https://img.shields.io/badge/MongoDB-47A248?logo=mongodb&logoColor=white)
@@ -15,9 +15,9 @@ A modern, secure URL shortening service built with Node.js, Express, and MongoDB
 
 ## 🌐 Live Demo
 
-**[Try it live on Render](https://url-shortener-35e5.onrender.com)** 🚀
+**[Try it live](https://url.aparagarwal.tech)** 🚀
 
-> ⏱️ **Note**: This application is hosted on Render's free tier. If the service hasn't been used recently, the first request may take 30-60 seconds as the instance spins up from sleep mode. Subsequent requests will be fast!
+> 🌐 **Deployed on Vercel** with custom domain. Fast and reliable serverless deployment powered by Vercel Edge Network.
 
 ## 📋 Table of Contents
 
@@ -104,21 +104,25 @@ A modern, secure URL shortening service built with Node.js, Express, and MongoDB
 
 ### Deployment
 
-- **Platform**: Render
+- **Platform**: Vercel (Serverless Functions)
 - **Database**: MongoDB Atlas (Cloud)
 - **Environment**: Production-ready with environment validation
+- **Custom Domain**: Configured with custom domain support
 
 ## 📁 Project Structure
 
 ```
 urlShortener/
 ├── app.js                    # Express app configuration
-├── index.js                  # Server entry point
+├── index.js                  # Server entry point (for local development)
 ├── constants.js              # Application constants and configurations
 ├── package.json              # Project dependencies
+├── vercel.json               # Vercel deployment configuration
 ├── eslint.config.js          # ESLint configuration (flat config)
 ├── .prettierrc.json          # Prettier configuration
 ├── .env.sample               # Environment variables template
+├── api/
+│   └── index.js             # Vercel serverless function handler
 ├── config/
 │   └── db.js                # Database connection with retry logic
 ├── controllers/
@@ -263,7 +267,7 @@ The server will start at `http://localhost:3000` ✨
 | `PORT`                 | Port number for the server              | `3000`                                 |
 | `MONGO_URI`            | MongoDB connection string               | `mongodb://localhost:27017/shorturl`   |
 | `NODE_ENV`             | Environment mode                        | `development` or `production`          |
-| `BASE_URL`             | Base URL for generating short links     | `http://localhost:3000`                |
+| `BASE_URL`             | Base URL for generating short links (no trailing slash) | `http://localhost:3000`                |
 | `ACCESS_TOKEN_SECRET`  | Secret key for JWT token generation     | Generated using crypto.randomBytes(64) |
 | `ACCESS_TOKEN_EXPIRY`  | JWT access token expiration time        | `15m`, `1h`, `7d`                      |
 | `REFRESH_TOKEN_SECRET` | Secret key for refresh token generation | Generated using crypto.randomBytes(64) |
@@ -292,43 +296,63 @@ Get your MongoDB Atlas connection string:
 
 ## 🚀 Deployment
 
-### Deploying to Render
+### Deploying to Vercel
 
-This application is optimized for deployment on [Render](https://render.com):
+This application is optimized for serverless deployment on [Vercel](https://vercel.com):
+
+#### Prerequisites:
+
+- GitHub account with your repository
+- MongoDB Atlas account (for cloud database)
+- Vercel account (free tier available)
 
 #### Steps:
 
-1. **Create a Render Account**: Sign up at [Render](https://render.com)
+1. **Prepare the Repository**:
+   - Ensure `vercel.json` exists in the root directory
+   - Ensure `api/index.js` (serverless function handler) exists
 
-2. **Create a New Web Service**:
-    - Connect your GitHub repository
-    - Select "url-shortener" repository
-    - Configure the service
+2. **Deploy via GitHub Integration**:
+   - Sign up/Login at [Vercel](https://vercel.com)
+   - Click "Add New Project"
+   - Import your GitHub repository
+   - Vercel will auto-detect the configuration
 
-3. **Configure Build Settings**:
-    - **Build Command**: `npm install`
-    - **Start Command**: `npm start`
+3. **Set Environment Variables** in Vercel Dashboard:
 
-4. **Set Environment Variables** in Render Dashboard:
+    Go to **Settings → Environment Variables** and add:
 
-    | Variable               | Value                                                      |
-    | ---------------------- | ---------------------------------------------------------- |
-    | `MONGO_URI`            | Your MongoDB Atlas connection string                       |
-    | `BASE_URL`             | Your Render app URL (e.g., `https://yourapp.onrender.com`) |
-    | `NODE_ENV`             | `production`                                               |
-    | `ACCESS_TOKEN_SECRET`  | Generate using `crypto.randomBytes(64).toString('hex')`    |
-    | `ACCESS_TOKEN_EXPIRY`  | `15m` (or your preferred expiry)                           |
-    | `REFRESH_TOKEN_SECRET` | Generate using `crypto.randomBytes(64).toString('hex')`    |
-    | `REFRESH_TOKEN_EXPIRY` | `7d` (or your preferred expiry)                            |
+    | Variable               | Value                                                   |
+    | ---------------------- | ------------------------------------------------------- |
+    | `MONGO_URI`            | Your MongoDB Atlas connection string                    |
+    | `BASE_URL`             | Your Vercel domain (e.g., `https://your-app.vercel.app`) **NO trailing slash** |
+    | `NODE_ENV`             | `production`                                            |
+    | `ACCESS_TOKEN_SECRET`  | Generate using `crypto.randomBytes(64).toString('hex')` |
+    | `ACCESS_TOKEN_EXPIRY`  | `15m` (or your preferred expiry)                        |
+    | `REFRESH_TOKEN_SECRET` | Generate using `crypto.randomBytes(64).toString('hex')` |
+    | `REFRESH_TOKEN_EXPIRY` | `7d` (or your preferred expiry)                         |
 
-5. **Deploy**: Render will automatically build and deploy your application
+4. **Deploy**: Click "Deploy" - Vercel will build and deploy automatically
+
+5. **Configure Custom Domain** (Optional):
+   - Go to **Settings → Domains**
+   - Click "Add Domain"
+   - Enter your custom domain (e.g., `url.yourdomain.com`)
+   - Add CNAME record in your DNS provider:
+     - **Name**: `url` (or your subdomain)
+     - **Value**: `cname.vercel-dns.com`
+   - Wait for DNS propagation (5-60 minutes)
+   - Update `BASE_URL` environment variable to your custom domain
+   - Redeploy
 
 #### Important Notes:
 
-- ⏱️ **Free Tier Limitation**: Render's free tier puts services to sleep after 15 minutes of inactivity. The first request after sleep will take 30-60 seconds.
-- 🗄️ **Database**: Use MongoDB Atlas (cloud) for production, not local MongoDB
-- 🔐 **Security**: Never commit `.env` files or expose secrets in your repository
-- 🔄 **Auto-Deploy**: Enable auto-deploy in Render to automatically deploy when you push to your main branch
+- ⚡ **Serverless**: Vercel uses serverless functions - instant scaling with no cold starts
+- 🗄️ **Database**: Use MongoDB Atlas (cloud) for production
+- 🔐 **Security**: Never commit `.env` files or expose secrets
+- 🔄 **Auto-Deploy**: Vercel auto-deploys on every push to main branch
+- 🌐 **Custom Domains**: Free SSL certificates for custom domains
+- ⚠️ **BASE_URL**: Must NOT have a trailing slash to avoid double-slash issues in URLs
 
 ## 🏃 Running the Application
 
@@ -721,6 +745,6 @@ If you find this project helpful or interesting, please consider giving it a sta
   <p>
     <a href="https://github.com/AparAgarwal/url-shortener">View on GitHub</a>
     ·
-    <a href="https://url-shortener-35e5.onrender.com">Live Demo</a>
+    <a href="https://url.aparagarwal.tech">Live Demo</a>
   </p>
 </div>
