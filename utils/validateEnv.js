@@ -19,7 +19,7 @@ const validateEnv = () => {
     if (missing.length > 0) {
         throw new Error(
             `Missing required environment variables: ${missing.join(', ')}\n` +
-                'Please check your .env file and ensure all required variables are set.'
+            'Please check your .env file and ensure all required variables are set.'
         );
     }
 
@@ -40,7 +40,9 @@ const validateEnv = () => {
         throw new Error('ACCESS_TOKEN_SECRET and REFRESH_TOKEN_SECRET must be different');
     }
 
-    console.log('✓ Environment variables validated successfully');
+    if (process.env.NODE_ENV !== 'production') {
+        console.log('✓ Environment variables validated successfully');
+    }
 };
 
 export default validateEnv;

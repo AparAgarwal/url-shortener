@@ -37,10 +37,11 @@ const connectWithRetry = async (context = 'startup') => {
             await connect();
 
             if (mongoose.connection.readyState === 1) {
-                console.log(`✓ MongoDB connected (${context})`);
-                console.log(`  Host: ${mongoose.connection.host}`);
-                console.log(`  DB: ${mongoose.connection.name}`);
-
+                if (process.env.NODE_ENV !== 'production') {
+                    console.log(`✓ MongoDB connected (${context})`);
+                    console.log(`  Host: ${mongoose.connection.host}`);
+                    console.log(`  DB: ${mongoose.connection.name}`);
+                }
                 hasConnectedOnce = true;
                 return;
             }
