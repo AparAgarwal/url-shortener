@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
+import crypto from 'crypto';
 import { BCRYPT_SALT_ROUNDS } from '../constants.js';
 
 const userSchema = new mongoose.Schema(
@@ -82,7 +83,8 @@ userSchema.methods.generateAccessToken = function () {
 userSchema.methods.generateRefreshToken = function () {
     return jwt.sign(
         {
-            _id: this._id
+            _id: this._id,
+            tokenVersion: this.tokenVersion // Include for revocation checking
         },
         process.env.REFRESH_TOKEN_SECRET,
         {
@@ -91,17 +93,18 @@ userSchema.methods.generateRefreshToken = function () {
     );
 };
 
-// SECURITY: Hash refresh token before storing in database
-userSchema.methods.hashRefreshToken = async function (refreshToken) {
-    return await bcrypt.hash(refreshToken, BCRYPT_SALT_ROUNDS);
+// Hash refresh token using SHA-256 (deterministic for reliable comparison)
+userSchema.methods.hashRefreshToken = function (refreshToken) {
+    return crypto.createHash('sha256').update(refreshToken).digest('hex');
 };
 
-// SECURITY: Compare incoming refresh token with stored hash
-userSchema.methods.verifyRefreshToken = async function (refreshToken) {
+// Compare incoming refresh token with stored hash
+userSchema.methods.verifyRefreshToken = function (refreshToken) {
     if (!this.refreshTokenHash) {
         return false;
     }
-    return await bcrypt.compare(refreshToken, this.refreshTokenHash);
+    const incomingHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
+    return this.refreshTokenHash === incomingHash;
 };
 
 const User = mongoose.model('User', userSchema);
