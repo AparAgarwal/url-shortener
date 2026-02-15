@@ -20,4 +20,4 @@ export const extractAccessToken = req =>
     req.cookies?.accessToken || req.header('Authorization')?.replace('Bearer ', '');
 
 export const extractRefreshToken = req =>
-    req.cookies?.refreshToken || req.header('Authorization')?.replace('Bearer ', '');
+    req.cookies?.refreshToken;
