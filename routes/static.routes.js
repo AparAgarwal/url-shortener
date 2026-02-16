@@ -7,17 +7,14 @@ import {
 } from '../middlewares/auth.middleware.js';
 import { getAllUrls, redirectToUrl, createShortUrl } from '../controllers/url.controller.js';
 import { BASE_URL } from '../constants.js';
-import {
-    userSignUp,
-    userLogin,
-    userLogout
-} from '../controllers/user.controller.js';
+import { userSignUp, userLogin, userLogout } from '../controllers/user.controller.js';
 import {
     shortIdValidation,
     createUrlValidation,
     signupValidation,
     loginValidation
 } from '../middlewares/validators.js';
+import { handleGuest, softAuth } from '../middlewares/guest.middleware.js';
 
 const router = express.Router();
 
@@ -28,7 +25,7 @@ const router = express.Router();
 
 // ===== View Pages =====
 // GET / - Home page
-router.get('/', restrictToLogin, (req, res) => {
+router.get('/', softAuth, handleGuest, (req, res) => {
     const shortId = req.query.shortId || null;
     const user = req.user || {};
 
@@ -44,7 +41,7 @@ router.get('/', restrictToLogin, (req, res) => {
         id: shortId,
         error,
         redirectUrl,
-        user,
+        user, // softAuth populates this if logged in
         baseUrl: BASE_URL
     });
 });
@@ -60,7 +57,7 @@ router.get('/login', redirectIfLoggedIn, (req, res) => {
 });
 
 // GET /manage-urls - View all URLs page
-router.get('/manage-urls', restrictToLogin, getAllUrls);
+router.get('/manage-urls', softAuth, handleGuest, getAllUrls);
 
 // GET /profile - User profile page
 router.get('/profile', restrictToLogin, (req, res) => {
@@ -71,7 +68,7 @@ router.get('/profile', restrictToLogin, (req, res) => {
 
 // ===== Web Form Submissions =====
 // POST /url - Create short URL via web form
-router.post('/url', restrictToLogin, createUrlValidation, createShortUrl);
+router.post('/url', softAuth, handleGuest, createUrlValidation, createShortUrl);
 
 // POST /user/register - User registration via web form
 router.post('/user/register', signupValidation, userSignUp);
@@ -83,10 +80,14 @@ router.post('/user/login', loginValidation, userLogin);
 router.post('/user/logout', verifyAccessToken, userLogout);
 
 // Refresh token (web, silent)
-router.get('/refresh', (req, res, next) => {
-    req._isRefreshEndpoint = true;
-    next();
-}, autoRefreshToken);
+router.get(
+    '/refresh',
+    (req, res, next) => {
+        req._isRefreshEndpoint = true;
+        next();
+    },
+    autoRefreshToken
+);
 
 // ===== URL Redirect (must be last) =====
 // GET /:shortId - Redirect to original URL (must be last to avoid conflicts)

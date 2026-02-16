@@ -2,6 +2,7 @@ import express from 'express';
 import { createShortUrl, deleteUrl, getAllUrls } from '../controllers/url.controller.js';
 import { createUrlValidation, shortIdValidation } from '../middlewares/validators.js';
 import { verifyAccessToken } from '../middlewares/auth.middleware.js';
+import { handleGuest, softAuth } from '../middlewares/guest.middleware.js';
 
 const router = express.Router();
 
@@ -17,7 +18,7 @@ router.get('/', verifyAccessToken, getAllUrls);
 // POST /api/v1/url - Create short URL (JSON or HTML response based on request) - Protected
 router.post('/', verifyAccessToken, createUrlValidation, createShortUrl);
 
-// DELETE /api/v1/url/:shortId - Delete URL (JSON response only) - Protected
-router.delete('/:shortId', verifyAccessToken, shortIdValidation, deleteUrl);
+// DELETE /api/v1/url/:shortId - Delete URL (JSON response only) - Protected/Guest
+router.delete('/:shortId', softAuth, handleGuest, shortIdValidation, deleteUrl);
 
 export default router;
