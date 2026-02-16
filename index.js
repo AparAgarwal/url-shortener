@@ -1,5 +1,5 @@
-import app from './app.js';
 import 'dotenv/config';
+import app from './app.js';
 import validateEnv from './utils/validateEnv.js';
 import connectDB from './config/db.js';
 
