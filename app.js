@@ -11,6 +11,8 @@ import staticRoutes from './routes/static.routes.js';
 
 // Middleware imports
 import errorHandler from './middlewares/errorHandler.js';
+import ApiError from './utils/ApiError.js';
+import { HTTP_STATUS } from './constants.js';
 
 const app = express();
 
@@ -35,6 +37,16 @@ app.use('/', staticRoutes);
 // API routes with /api/v1 prefix
 app.use('/api/v1/url', urlRoutes);
 app.use('/api/v1/user', userRoutes);
+
+// Catch-all 404 handler
+app.use((req, res, next) => {
+    // Silence 404s for common browser/tool requests
+    if (req.url.includes('/.well-known/') || req.url.includes('favicon.ico')) {
+        return res.status(404).end();
+    }
+    // Pass 404 error to global error handler
+    next(new ApiError(HTTP_STATUS.NOT_FOUND, `Page Not Found: ${req.originalUrl}`));
+});
 
 // Error handling middleware (must be last)
 app.use(errorHandler);
