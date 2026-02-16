@@ -1,0 +1,325 @@
+/* Reusable Components */
+
+/* Glassmorphism Container Base */
+.container,
+.auth-container,
+.profile-container,
+.management-container {
+    background: var(--glass-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.container::before,
+.auth-container::before,
+.profile-container::before,
+.management-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+}
+
+/* Container Sizing */
+.container {
+    padding: 3rem 2.5rem;
+    max-width: 550px;
+}
+
+.auth-container {
+    padding: 3rem 2.5rem;
+    max-width: 480px;
+}
+
+.profile-container {
+    padding: 3rem 2.5rem;
+    max-width: 500px;
+}
+
+.management-container {
+    padding: 2.5rem;
+    max-width: 1000px;
+}
+
+/* Typography */
+h1 {
+    color: white;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.subtitle {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    text-align: center;
+    font-weight: 400;
+}
+
+/* Form Elements */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+label {
+    display: block;
+    color: var(--text-main);
+    font-family: var(--font-heading);
+    font-weight: 500;
+    margin-bottom: 0.75rem;
+    font-size: 0.95rem;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+.form-group input {
+    width: 100%;
+    padding: 1.25rem 1.5rem;
+    background: var(--input-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    color: white;
+    font-size: 1rem;
+    font-family: var(--font-body);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+input[type="text"]::placeholder,
+input[type="email"]::placeholder,
+input[type="password"]::placeholder,
+.form-group input::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+.form-group input:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15);
+}
+
+/* Buttons */
+button[type="submit"],
+.submit-btn {
+    width: 100%;
+    padding: 1.25rem;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 1.1rem;
+    font-family: var(--font-heading);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 10px 30px -10px rgba(79, 70, 229, 0.5);
+    position: relative;
+    overflow: hidden;
+}
+
+button[type="submit"]:hover,
+.submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 20px 40px -12px rgba(79, 70, 229, 0.6);
+    filter: brightness(1.1);
+}
+
+button[type="submit"]:active,
+.submit-btn:active {
+    transform: translateY(0);
+}
+
+.submit-btn {
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 1rem;
+}
+
+/* Utility Buttons */
+.back-btn {
+    padding: 10px 20px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    text-decoration: none;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--glass-border);
+    transition: all 0.3s ease;
+    font-weight: 500;
+    font-family: var(--font-heading);
+    cursor: pointer;
+}
+
+.back-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.copy-btn {
+    width: auto;
+    padding: 0 1.5rem;
+    background: var(--input-bg);
+    border: 1px solid var(--glass-border);
+    color: white;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: 1.25rem;
+    transition: all 0.2s ease;
+}
+
+.copy-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(1.05);
+}
+
+.copy-btn.copied {
+    background: var(--success);
+    border-color: var(--success);
+    color: white;
+}
+
+/* Small Action Buttons */
+.btn-copy,
+.btn-delete {
+    padding: 8px 12px;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-copy {
+    background: rgba(79, 70, 229, 0.2);
+    color: #818cf8;
+    border: 1px solid rgba(79, 70, 229, 0.3);
+}
+
+.btn-copy:hover {
+    background: rgba(79, 70, 229, 0.4);
+    transform: translateY(-2px);
+}
+
+.btn-copy.copied {
+    background: rgba(16, 185, 129, 0.2);
+    color: #34d399;
+    border-color: rgba(16, 185, 129, 0.3);
+}
+
+.btn-delete {
+    background: rgba(239, 68, 68, 0.2);
+    color: #fca5a5;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.btn-delete:hover {
+    background: rgba(239, 68, 68, 0.4);
+    transform: translateY(-2px);
+}
+
+/* Messages & Alerts */
+.error-message,
+.success-message {
+    padding: 1rem;
+    border-radius: var(--radius-sm);
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.error-message {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    color: #fca5a5;
+}
+
+.success-message {
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    color: #6ee7b7;
+}
+
+.guest-banner {
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    color: #fbbf24;
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    width: 100%;
+}
+
+.guest-banner a {
+    color: white;
+    text-decoration: underline;
+}
+
+/* Links */
+a {
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.auth-footer a,
+.home-link a {
+    color: #818cf8;
+    font-weight: 600;
+}
+
+.auth-footer a:hover,
+.home-link a:hover {
+    color: white;
+    text-decoration: underline;
+}
+
+/* Checkbox */
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 1.5rem;
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--primary);
+    background: var(--input-bg);
+    cursor: pointer;
+}
+
+.checkbox-group label {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    cursor: pointer;
+    margin-bottom: 0;
+}
+
+/* Responsive - Shared */
+@media (max-width: 480px) {
+    .container,
+    .auth-container,
+    .profile-container {
+        padding: 2rem 1.5rem;
+    }
+
+    .management-container {
+        padding: 1.5rem;
+    }
+}

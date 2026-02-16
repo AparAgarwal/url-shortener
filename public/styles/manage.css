@@ -1,0 +1,212 @@
+/* Manage URLs Page */
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--glass-border);
+    padding-bottom: 1rem;
+}
+
+.header h1 {
+    margin: 0;
+    color: white;
+    font-family: var(--font-heading);
+    font-weight: 700;
+}
+
+/* Stats */
+.stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    color: white;
+    padding: 20px;
+    border-radius: var(--radius-md);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 5px;
+    color: #60a5fa;
+    font-family: var(--font-heading);
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+/* Table */
+.table-container {
+    overflow-x: auto;
+}
+
+.urls-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 8px;
+    margin-bottom: 20px;
+}
+
+.urls-table thead {
+    border-bottom: none;
+}
+
+.urls-table th {
+    padding: 15px;
+    text-align: left;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+}
+
+.urls-table tr {
+    background: rgba(255, 255, 255, 0.03);
+    transition: background 0.2s;
+}
+
+.urls-table tr td:first-child {
+    border-top-left-radius: var(--radius-sm);
+    border-bottom-left-radius: var(--radius-sm);
+}
+
+.urls-table tr td:last-child {
+    border-top-right-radius: var(--radius-sm);
+    border-bottom-right-radius: var(--radius-sm);
+}
+
+.urls-table tr:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.urls-table td {
+    padding: 15px;
+    color: var(--text-main);
+    border: none;
+}
+
+.short-id {
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+    color: #34d399;
+    background: rgba(52, 211, 153, 0.1);
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.redirect-url {
+    word-break: break-all;
+    max-width: 300px;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+}
+
+.empty-state p {
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+}
+
+.empty-link {
+    color: #818cf8;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.empty-link:hover {
+    color: white;
+    text-decoration: underline;
+}
+
+/* Responsive - Mobile Table Layout */
+@media (max-width: 768px) {
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    /* Card Layout for Table */
+    .urls-table thead {
+        display: none;
+    }
+
+    .urls-table,
+    .urls-table tbody,
+    .urls-table tr,
+    .urls-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .urls-table tr {
+        background: rgba(255, 255, 255, 0.05);
+        margin-bottom: 20px;
+        border-radius: var(--radius-md);
+        border: 1px solid var(--glass-border);
+        padding: 15px;
+    }
+
+    .urls-table td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        text-align: right;
+        padding: 10px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .urls-table td:last-child {
+        border-bottom: none;
+        justify-content: flex-end;
+        padding-top: 15px;
+    }
+
+    .urls-table td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        text-align: left;
+        margin-right: 15px;
+    }
+
+    .redirect-url {
+        max-width: 200px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .stats {
+        grid-template-columns: 1fr;
+    }
+}

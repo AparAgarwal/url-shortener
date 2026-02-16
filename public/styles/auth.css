@@ -1,0 +1,81 @@
+/* Authentication Pages - Login & Signup */
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+
+.auth-header h1 {
+    color: white;
+    font-family: var(--font-heading);
+    font-size: 2.25rem;
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+}
+
+.auth-header .subtitle {
+    color: var(--text-muted);
+    font-size: 1rem;
+}
+
+.form-group label {
+    margin-bottom: 0.5rem;
+}
+
+/* Password Hints */
+.password-hint-container {
+    padding-left: 0;
+    margin-top: 10px;
+    list-style: none;
+    display: grid;
+    gap: 5px;
+}
+
+.password-hint {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.password-hint::before {
+    content: '•';
+    color: var(--text-muted);
+}
+
+.password-hint.valid {
+    color: #34d399;
+}
+
+.password-hint.valid::before {
+    content: '✓';
+    color: #34d399;
+}
+
+.password-hint.invalid {
+    color: #f87171;
+}
+
+/* Auth Footer */
+.auth-footer {
+    text-align: center;
+    margin-top: 2rem;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+}
+
+.home-link {
+    text-align: center;
+    margin-top: 1.5rem;
+    border-top: 1px solid var(--glass-border);
+    padding-top: 1.5rem;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .auth-header h1 {
+        font-size: 1.75rem;
+    }
+}
