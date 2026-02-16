@@ -60,13 +60,26 @@ export const redirectToUrl = asyncHandler(async (req, res, next) => {
         { new: false } // Return the original document before update
     ).lean();
 
+    const wantsJson = isApiRequest(req);
+
     if (!url) {
-        throw new ApiError(HTTP_STATUS.NOT_FOUND, MESSAGES.URL_NOT_FOUND);
+        if (wantsJson) {
+            throw new ApiError(HTTP_STATUS.NOT_FOUND, MESSAGES.URL_NOT_FOUND);
+        }
+        // Web clients: render friendly error page (avoid redirecting to protected home)
+        return res.status(HTTP_STATUS.NOT_FOUND).render('error', {
+            error: MESSAGES.URL_NOT_FOUND
+        });
     }
 
     // Check if URL has expired; TTL index will handle physical deletion
     if (url.expiresAt && new Date(url.expiresAt) < new Date()) {
-        throw new ApiError(HTTP_STATUS.NOT_FOUND, 'This short URL has expired');
+        if (wantsJson) {
+            throw new ApiError(HTTP_STATUS.NOT_FOUND, 'This short URL has expired');
+        }
+        return res.status(HTTP_STATUS.NOT_FOUND).render('error', {
+            error: 'This short URL has expired'
+        });
     }
 
     return res.redirect(url.redirectUrl);
