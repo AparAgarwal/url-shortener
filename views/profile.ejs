@@ -53,7 +53,9 @@
                 <a href="/">← Back to Home</a>
             </div>
             <div class="logout-link">
-                <a href="/logout">Logout</a>
+                <form action="/user/logout" method="POST" style="display: inline; margin: 0; padding: 0;">
+                    <a href="#" onclick="event.preventDefault(); this.closest('form').submit();">Logout</a>
+                </form>
             </div>
         </div>
     </div>
