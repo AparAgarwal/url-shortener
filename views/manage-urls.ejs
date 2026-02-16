@@ -5,7 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage URLs - URL Shortener</title>
-    <link rel="stylesheet" href="/manage.css">
+    <link rel="stylesheet" href="/styles/variables.css">
+    <link rel="stylesheet" href="/styles/globals.css">
+    <link rel="stylesheet" href="/styles/components.css">
+    <link rel="stylesheet" href="/styles/manage.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
 <body class="page-body">
@@ -22,6 +28,12 @@
                 </div>
                 <div class="stat-label">Total URLs</div>
             </div>
+            <% if (!locals.user) { %>
+                <div class="guest-banner">
+                    <span>⚠️ Guest Mode: URLs expire in 1 hour. <a href="/signup">Sign up</a> to save them
+                        permanently!</span>
+                </div>
+                <% } %>
         </div>
 
         <% if (urls.length> 0) { %>
@@ -38,27 +50,27 @@
                 <tbody>
                     <% urls.forEach((url, index)=> { %>
                         <tr>
-                            <td>
+                            <td data-label="Short ID">
                                 <span class="short-id">
                                     <%= url.shortId %>
                                 </span>
                             </td>
-                            <td>
+                            <td data-label="Original URL">
                                 <div class="redirect-url">
                                     <%= url.redirectUrl %>
                                 </div>
                             </td>
-                            <td>
+                            <td data-label="Total Clicks">
                                 <div class="analytics">
                                     <%= url.clickCount %>
                                 </div>
                             </td>
-                            <td>
+                            <td data-label="Expires At">
                                 <div class="expiry-date">
                                     <%= url.expiresAt ? new Date(url.expiresAt).toLocaleString() : 'Never' %>
                                 </div>
                             </td>
-                            <td>
+                            <td data-label="Actions">
                                 <div class="action-buttons">
                                     <button class="btn-copy" onclick="copyShortId('<%= url.shortId %>', this)">
                                         📋 Copy

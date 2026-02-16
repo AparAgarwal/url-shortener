@@ -5,101 +5,126 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>URL Shortener</title>
-    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/styles/variables.css">
+    <link rel="stylesheet" href="/styles/globals.css">
+    <link rel="stylesheet" href="/styles/components.css">
+    <link rel="stylesheet" href="/styles/home.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
 </head>
 
 <body>
-    <a class="profile" href="/profile">
-        <div class="avatar"><img src="<%= locals.user.avatarUrl %>" alt=""></div>
-        <span class="name">
-            <%= locals.user.username %>!
-        </span>
-    </a>
-    <div class="container">
-        <h1>🔗 URL Shortener</h1>
-        <p class="subtitle">Get your URL shortened in a click</p>
-
-        <% if (locals.error) { %>
-            <div class="error-message">
-                ❌ <%= error %>
+    <% if (locals.user && locals.user.username) { %>
+        <a class="profile" href="/profile">
+            <div class="avatar"><img src="<%= locals.user.avatarUrl || '/default-avatar.png' %>" alt=""></div>
+            <span class="name">
+                <%= locals.user.username %>!
+            </span>
+        </a>
+        <% } else { %>
+            <div class="auth-links">
+                <a href="/login">Log In</a>
+                <a href="/signup">Sign Up</a>
             </div>
-        <% } %>
+            <% } %>
+                <div class="container">
+                    <h1>🔗 URL Shortener</h1>
+                    <p class="subtitle">Get your URL shortened in a click</p>
 
-        <% if (locals.id) { %>
-            <div class="success-message">
-                Your shortened URL is ready!
-            </div>
-            <div class="shortened-url-wrapper">
-                <div class="shortened-url" id="shortenedUrl">
-                    <%= baseUrl %>/<%= id %>
+                    <% if (locals.error) { %>
+                        <div class="error-message">
+                            ❌ <%= error %>
+                        </div>
+                        <% } %>
+
+                            <% if (locals.id) { %>
+                                <div class="success-message">
+                                    Your shortened URL is ready!
+                                </div>
+                                <div class="shortened-url-wrapper">
+                                    <div class="shortened-url" id="shortenedUrl">
+                                        <%= baseUrl %>/<%= id %>
+                                    </div>
+                                    <button class="copy-btn" onclick="copyToClipboard(event)">📋</button>
+                                </div>
+                                <% } %>
+
+                                    <form method="POST" action="/url">
+                                        <div class="form-group">
+                                            <label for="redirectUrl">Enter your original URL</label>
+                                            <input type="text" id="redirectUrl" name="redirectUrl"
+                                                placeholder="https://example.com"
+                                                value="<%= locals.redirectUrl || '' %>" required>
+                                        </div>
+                                        <div class="expiry-btn">
+                                            <label for="expiry">Set Expiry Time:</label>
+                                            <% if (locals.user && locals.user.username) { %>
+                                                <span data-value="3600">1 Hour</span>
+                                                <span data-value="86400">1 Day</span>
+                                                <span data-value="604800">1 Week</span>
+                                                <span data-value="0">Never</span>
+                                                <% } else { %>
+                                                    <span data-value="3600" class="selected"
+                                                        style="pointer-events: none; opacity: 0.7;">1 Hour (Guest
+                                                        Limit)</span>
+                                                    <p style="font-size: 0.8rem; color: #666; margin-top: 5px;">Login to
+                                                        set custom expiry and create more links!</p>
+                                                    <% } %>
+                                        </div>
+                                        <button type="submit">Generate Shortened URL</button>
+                                    </form>
+
+                                    <p class="info-text">Your URL will be shortened and ready to share instantly!</p>
+
+                                    <div class="management-link">
+                                        <a href="/manage-urls">📊 View All URLs & Manage</a>
+                                    </div>
                 </div>
-                <button class="copy-btn" onclick="copyToClipboard(event)">📋</button>
-            </div>
-        <% } %>
 
-        <form method="POST" action="/url">
-            <div class="form-group">
-                <label for="redirectUrl">Enter your original URL</label>
-                <input type="text" id="redirectUrl" name="redirectUrl" placeholder="https://example.com"
-                    value="<%= locals.redirectUrl || '' %>" required>
-            </div>
-            <div class="expiry-btn">
-                <label for="expiry">Set Expiry Time:</label>
-                <span data-value="3600">1 Hour</span>
-                <span data-value="86400">1 Day</span>
-                <span data-value="604800">1 Week</span>
-                <span data-value="0">Never</span>
-            </div>
-            <button type="submit">Generate Shortened URL</button>
-        </form>
+                <script>
+                    function copyToClipboard(event) {
+                        const urlElement = document.getElementById('shortenedUrl');
+                        const text = urlElement.innerText;
 
-        <p class="info-text">Your URL will be shortened and ready to share instantly!</p>
+                        navigator.clipboard.writeText(text).then(() => {
+                            const button = event.target;
+                            const originalText = button.innerText;
 
-        <div class="management-link">
-            <a href="/manage-urls">📊 View All URLs & Manage</a>
-        </div>
-    </div>
+                            button.innerText = '✓';
+                            button.classList.add('copied');
 
-    <script>
-        function copyToClipboard(event) {
-            const urlElement = document.getElementById('shortenedUrl');
-            const text = urlElement.innerText;
+                            setTimeout(() => {
+                                button.innerText = originalText;
+                                button.classList.remove('copied');
+                            }, 2000);
+                        }).catch(() => {
+                            alert('Failed to copy URL');
+                        });
+                    }
 
-            navigator.clipboard.writeText(text).then(() => {
-                const button = event.target;
-                const originalText = button.innerText;
+                    const expiryButtons = document.querySelectorAll('.expiry-btn span');
+                    const expiryInput = document.createElement('input');
+                    expiryInput.type = 'hidden';
+                    expiryInput.name = 'expiry';
+                    document.querySelector('form').appendChild(expiryInput);
 
-                button.innerText = '✓';
-                button.classList.add('copied');
+                    expiryButtons.forEach(button => {
+                        button.addEventListener('click', () => {
+                            expiryButtons.forEach(btn => btn.removeAttribute('selected'));
+                            button.setAttribute('selected', '');
+                            expiryInput.value = button.getAttribute('data-value');
+                        });
+                    });
 
-                setTimeout(() => {
-                    button.innerText = originalText;
-                    button.classList.remove('copied');
-                }, 2000);
-            }).catch(() => {
-                alert('Failed to copy URL');
-            });
-        }
-
-        const expiryButtons = document.querySelectorAll('.expiry-btn span');
-        const expiryInput = document.createElement('input');
-        expiryInput.type = 'hidden';
-        expiryInput.name = 'expiry';
-        document.querySelector('form').appendChild(expiryInput);
-
-        expiryButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                expiryButtons.forEach(btn => btn.removeAttribute('selected'));
-                button.setAttribute('selected', '');
-                expiryInput.value = button.getAttribute('data-value');
-            });
-        });
-
-        // Set default expiry value if available
-        if (expiryInput.value === '') {
-            expiryInput.value = '3600'; // Default to 1 Hour
-            expiryButtons[0].setAttribute('selected', '');
-        }
-    </script>
+                    // Set default expiry value if available
+                    if (expiryInput.value === '') {
+                        expiryInput.value = '3600'; // Default to 1 Hour
+                        expiryButtons[0].setAttribute('selected', '');
+                    }
+                </script>
 </body>
+
 </html>
