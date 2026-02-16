@@ -407,7 +407,6 @@ Server running at http://localhost:3000
 - `GET /` - Home page with URL creation form
 - `GET /signup` - User signup page
 - `GET /login` - User login page
-- `GET /logout` - Logout confirmation page
 - `GET /profile` - User profile page (requires authentication)
 - `GET /manage-urls` - URL management dashboard (requires authentication)
 - `GET /:shortId` - Redirect to original URL (with click tracking)
@@ -420,6 +419,7 @@ Server running at http://localhost:3000
     - Body: `{ fullName, username, email, password }`
 - `POST /user/login` - Login via web form (returns HTML)
     - Body: `{ identifier, password }`
+- `POST /user/logout` - Logout via web form (returns HTML, requires authentication)
 
 ### API Routes (JSON Responses)
 
