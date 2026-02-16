@@ -4,19 +4,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Error - URL Shortener</title>
-    <link rel="stylesheet" href="/error.css">
+    <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-    <div class="error-container">
-        <div class="error-icon">⚠️</div>
-        <h1 class="error-title">Oops! Something Went Wrong</h1>
-        <p class="error-message">
-            <%= error || "An unexpected error occurred. Please try again later." %>
+    <main class="error-container">
+        <div class="error-visual">
+            <!-- Modern SVG illustration matching the purple theme -->
+            <svg width="120" height="120" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <defs>
+                    <linearGradient id="purpleGradient" x1="0" x2="1" y1="0" y2="1">
+                        <stop offset="0%" stop-color="#667eea"/>
+                        <stop offset="100%" stop-color="#764ba2"/>
+                    </linearGradient>
+                </defs>
+                <circle cx="12" cy="12" r="10" stroke="url(#purpleGradient)" stroke-width="2" stroke-opacity="0.2"/>
+                <path d="M12 7v6" stroke="url(#purpleGradient)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="12" cy="17" r="1.5" fill="url(#purpleGradient)"/>
+                <path d="M12 2a10 10 0 0 1 10 10" stroke="url(#purpleGradient)" stroke-width="2" stroke-linecap="round" stroke-dasharray="2 4"/>
+            </svg>
+        </div>
+
+        <h1>Oops! Something went wrong</h1>
+        
+        <p class="subtitle"><%= error || "The link you're trying to access is broken, removed, or has expired." %></p>
+
+        <div class="error-actions">
+            <a href="/" class="btn-primary">Return Home</a>
+        </div>
+        
+        <p class="info-text">
+            If you believe this is a mistake, please <a href="mailto:support@example.com" style="color: #667eea; text-decoration: none;">contact support</a>.
         </p>
-        <% if (typeof statusCode !== 'undefined') { %>
-            <div class="error-code">Error Code: <%= statusCode %></div>
-        <% } %>
-        <a href="/" class="btn-home">← Go Back to Home</a>
-    </div>
+    </main>
 </body>
 </html>
