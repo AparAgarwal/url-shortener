@@ -1,7 +1,4 @@
-import {
-    HTTP_STATUS,
-    MESSAGES
-} from '../constants.js';
+import { HTTP_STATUS, MESSAGES } from '../constants.js';
 import ApiError from '../utils/ApiError.js';
 import ApiResponse from '../utils/ApiResponse.js';
 import asyncHandler from '../utils/asyncHandler.js';
@@ -61,15 +58,23 @@ export const verifyAndRotateRefreshToken = asyncHandler(async (req, res, next) =
             res.clearCookie('refreshToken', getCookieOptions());
         }
 
-        const errorMessage = error === 'NO_REFRESH_TOKEN'
-            ? MESSAGES.TOKEN_EXPIRED
-            : error === 'USER_NOT_FOUND' || error === 'INVALID_REFRESH_TOKEN'
-                ? MESSAGES.INVALID_REFRESH_TOKEN
-                : error === 'REFRESH_TOKEN_REPLACED'
+        const errorMessage =
+            error === 'NO_REFRESH_TOKEN'
+                ? MESSAGES.TOKEN_EXPIRED
+                : error === 'USER_NOT_FOUND' || error === 'INVALID_REFRESH_TOKEN'
+                  ? MESSAGES.INVALID_REFRESH_TOKEN
+                  : error === 'REFRESH_TOKEN_REPLACED'
                     ? MESSAGES.SESSION_INVALIDATED
                     : MESSAGES.SESSION_EXPIRED;
 
         if (!wantsJson) {
+            // BUG FIX: If POST request, redirect to login instead of rendering
+            // This prevents "Cannot POST /login" errors when session expires mid-action
+            if (req.method !== 'GET' && req.method !== 'HEAD') {
+                res.cookie('flash_error', errorMessage, { maxAge: 5000, ...getCookieOptions() });
+                return res.redirect(303, '/login');
+            }
+
             return res.status(HTTP_STATUS.UNAUTHORIZED).render('login', {
                 error: errorMessage
             });
@@ -110,7 +115,13 @@ export const autoRefreshToken = asyncHandler(async (req, res, next) => {
             if (wantsJson) {
                 return res
                     .status(HTTP_STATUS.OK)
-                    .json(new ApiResponse(HTTP_STATUS.OK, { accessToken: newAccessToken }, MESSAGES.TOKEN_REFRESHED));
+                    .json(
+                        new ApiResponse(
+                            HTTP_STATUS.OK,
+                            { accessToken: newAccessToken },
+                            MESSAGES.TOKEN_REFRESHED
+                        )
+                    );
             }
             // Web refresh is silent — redirect back to referrer or home
             return res.redirect(req.get('Referer') || '/');
