@@ -65,7 +65,8 @@ export const MESSAGES = {
     SESSION_EXPIRED: 'Session expired. Please login again.',
     INVALID_TOKEN: 'Invalid token. Please login again.',
     INVALID_REFRESH_TOKEN: 'Invalid refresh token. Please login again.',
-    TOKEN_REUSE_DETECTED: 'Security alert: Token reuse detected. Please login again.'
+    TOKEN_REUSE_DETECTED: 'Security alert: Token reuse detected. Please login again.',
+    SESSION_INVALIDATED: 'Logged in from another device. Session invalidated.'
 };
 
 // Redirect Messages (for web UI)

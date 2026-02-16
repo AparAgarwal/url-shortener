@@ -2,16 +2,15 @@ import express from 'express';
 import {
     restrictToLogin,
     verifyAccessToken,
-    verifyAndRotateRefreshToken,
-    redirectIfLoggedIn
+    redirectIfLoggedIn,
+    autoRefreshToken
 } from '../middlewares/auth.middleware.js';
 import { getAllUrls, redirectToUrl, createShortUrl } from '../controllers/url.controller.js';
 import { BASE_URL } from '../constants.js';
 import {
     userSignUp,
     userLogin,
-    userLogout,
-    refreshAccessToken
+    userLogout
 } from '../controllers/user.controller.js';
 import {
     shortIdValidation,
@@ -31,7 +30,7 @@ const router = express.Router();
 // GET / - Home page
 router.get('/', restrictToLogin, (req, res) => {
     const shortId = req.query.shortId || null;
-    const user = req.user || null;
+    const user = req.user || {};
 
     // Get flash messages from cookies
     const error = req.cookies.flash_error || null;
@@ -80,11 +79,14 @@ router.post('/user/register', signupValidation, userSignUp);
 // POST /user/login - User login via web form
 router.post('/user/login', loginValidation, userLogin);
 
-// Logout (web)
-router.get('/logout', verifyAccessToken, userLogout);
+// POST /user/logout - User logout via web
+router.post('/user/logout', verifyAccessToken, userLogout);
 
 // Refresh token (web, silent)
-router.get('/refresh', verifyAndRotateRefreshToken, refreshAccessToken);
+router.get('/refresh', (req, res, next) => {
+    req._isRefreshEndpoint = true;
+    next();
+}, autoRefreshToken);
 
 // ===== URL Redirect (must be last) =====
 // GET /:shortId - Redirect to original URL (must be last to avoid conflicts)

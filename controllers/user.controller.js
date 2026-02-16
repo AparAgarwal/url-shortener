@@ -6,14 +6,13 @@ import {
     HTTP_STATUS,
     MESSAGES,
     REDIRECT_MESSAGES,
-    REDIRECT_DELAY_MS,
-    COOKIE_ACCESS_TOKEN_EXPIRY,
-    COOKIE_REFRESH_TOKEN_EXPIRY
+    REDIRECT_DELAY_MS
 } from '../constants.js';
 import { capitalize, isApiRequest, getCookieOptions } from '../utils/helpers.js';
 import { generateAvatarFromName } from '../utils/generateAvatars.js';
+import { setAuthCookies, generateAndStoreTokens, clearUserTokens } from '../utils/auth.helpers.js';
 
-export const userSignUp = asyncHandler(async (req, res, next) => {
+export const userSignUp = asyncHandler(async (req, res) => {
     // Data is already validated and sanitized by middleware
     const { fullName, username, email, password } = req.body;
     const avatarUrl = generateAvatarFromName(fullName);
@@ -23,22 +22,10 @@ export const userSignUp = asyncHandler(async (req, res, next) => {
 
         const wantsJson = isApiRequest(req);
 
-        // Generate tokens
-        const accessToken = user.generateAccessToken();
-        const refreshToken = user.generateRefreshToken();
-        user.refreshTokenHash = await user.hashRefreshToken(refreshToken);
-        user.refreshTokenCreatedAt = new Date();
-        user.tokenVersion = 0;
+        // Generate and store tokens
+        const { accessToken, refreshToken } = await generateAndStoreTokens(user, { setVersionToZero: true });
 
-        await user.save({ validateBeforeSave: false });
-
-        res.cookie('accessToken', accessToken, {
-            ...getCookieOptions(),
-            maxAge: COOKIE_ACCESS_TOKEN_EXPIRY
-        }).cookie('refreshToken', refreshToken, {
-            ...getCookieOptions(),
-            maxAge: COOKIE_REFRESH_TOKEN_EXPIRY
-        });
+        setAuthCookies(res, accessToken, refreshToken);
 
         if (wantsJson) {
             const userResponse = {
@@ -90,7 +77,7 @@ export const userLogin = asyncHandler(async (req, res, next) => {
         : { username: identifier };
 
     // Need to select password explicitly since it's excluded by default
-    const user = await User.findOne(identifierQuery).select('+password +tokenVersion');
+    const user = await User.findOne(identifierQuery).select('+password +tokenVersion +refreshTokenHash +refreshTokenCreatedAt');
     const isMatch = await user?.comparePassword(password);
 
     const wantsJson = isApiRequest(req);
@@ -106,22 +93,10 @@ export const userLogin = asyncHandler(async (req, res, next) => {
     }
 
     try {
-        user.tokenVersion += 1;
-        await user.save({ validateBeforeSave: false });
+        // Generate and store tokens (incrementing version to invalidate old sessions)
+        const { accessToken, refreshToken } = await generateAndStoreTokens(user, { incrementVersion: true });
 
-        const accessToken = user.generateAccessToken();
-        const refreshToken = user.generateRefreshToken();
-        user.refreshTokenHash = await user.hashRefreshToken(refreshToken);
-        user.refreshTokenCreatedAt = new Date();
-        await user.save({ validateBeforeSave: false });
-
-        res.cookie('accessToken', accessToken, {
-            ...getCookieOptions(),
-            maxAge: COOKIE_ACCESS_TOKEN_EXPIRY
-        }).cookie('refreshToken', refreshToken, {
-            ...getCookieOptions(),
-            maxAge: COOKIE_REFRESH_TOKEN_EXPIRY
-        });
+        setAuthCookies(res, accessToken, refreshToken);
     } catch (error) {
         if (wantsJson) {
             throw new ApiError(HTTP_STATUS.INTERNAL_SERVER_ERROR, MESSAGES.SOMETHING_WENT_WRONG);
@@ -154,14 +129,7 @@ export const userLogin = asyncHandler(async (req, res, next) => {
 });
 
 export const userLogout = asyncHandler(async (req, res) => {
-    await User.findByIdAndUpdate(
-        req.user._id,
-        {
-            $unset: { refreshTokenHash: 1, refreshTokenCreatedAt: 1 },
-            $inc: { tokenVersion: 1 }
-        },
-        { new: true }
-    );
+    await clearUserTokens(req.user);
 
     const cookieOptions = getCookieOptions();
 
@@ -180,27 +148,4 @@ export const userLogout = asyncHandler(async (req, res) => {
         redirectTo: '/login',
         delay: 3000
     });
-});
-
-export const refreshAccessToken = asyncHandler(async (req, res) => {
-    const accessToken = req.user.generateAccessToken();
-
-    res.cookie('accessToken', accessToken, {
-        ...getCookieOptions(),
-        maxAge: COOKIE_ACCESS_TOKEN_EXPIRY
-    }).cookie('refreshToken', req.newRefreshToken, {
-        ...getCookieOptions(),
-        maxAge: COOKIE_REFRESH_TOKEN_EXPIRY
-    });
-
-    const wantsJson = isApiRequest(req);
-
-    if (wantsJson) {
-        return res
-            .status(HTTP_STATUS.OK)
-            .json(new ApiResponse(HTTP_STATUS.OK, { accessToken }, MESSAGES.TOKEN_REFRESHED));
-    }
-
-    // Web refresh is silent — redirect back
-    return res.redirect('/');
 });

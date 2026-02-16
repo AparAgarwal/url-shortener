@@ -1,13 +1,9 @@
-import jwt from 'jsonwebtoken';
 import {
     HTTP_STATUS,
-    MESSAGES,
-    COOKIE_ACCESS_TOKEN_EXPIRY,
-    COOKIE_REFRESH_TOKEN_EXPIRY,
-    REFRESH_TOKEN_ABSOLUTE_EXPIRY
+    MESSAGES
 } from '../constants.js';
-import User from '../models/user.model.js';
 import ApiError from '../utils/ApiError.js';
+import ApiResponse from '../utils/ApiResponse.js';
 import asyncHandler from '../utils/asyncHandler.js';
 import {
     extractAccessToken,
@@ -15,35 +11,31 @@ import {
     isApiRequest,
     getCookieOptions
 } from '../utils/helpers.js';
+import {
+    verifyAccessTokenAndUser,
+    verifyRefreshTokenAndUser,
+    setAuthCookies,
+    clearUserTokens
+} from '../utils/auth.helpers.js';
 
 export const verifyAccessToken = asyncHandler(async (req, res, next) => {
     const token = extractAccessToken(req);
-    if (!token) {
-        throw new ApiError(HTTP_STATUS.UNAUTHORIZED, MESSAGES.UNAUTHORIZED);
-    }
 
-    let verifiedToken;
-    try {
-        verifiedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-    } catch (error) {
-        if (error.name === 'TokenExpiredError') {
+    const { valid, user, error, tokenExpired } = await verifyAccessTokenAndUser(token);
+
+    if (!valid) {
+        // Handle token expiration with auto-refresh for web requests
+        if (tokenExpired) {
             const wantsJson = isApiRequest(req);
             if (wantsJson) {
                 throw new ApiError(HTTP_STATUS.UNAUTHORIZED, MESSAGES.TOKEN_EXPIRED);
             }
             return await autoRefreshToken(req, res, next);
         }
-        // JsonWebTokenError, signature mismatch, malformed tokens: Return 401
-        throw new ApiError(HTTP_STATUS.UNAUTHORIZED, MESSAGES.INVALID_TOKEN);
-    }
 
-    const user = await User.findById(verifiedToken?._id).select('+tokenVersion');
-
-    if (!user) {
-        throw new ApiError(HTTP_STATUS.UNAUTHORIZED, MESSAGES.UNAUTHORIZED);
-    }
-    if (verifiedToken.tokenVersion !== user.tokenVersion) {
-        throw new ApiError(HTTP_STATUS.UNAUTHORIZED, MESSAGES.INVALID_TOKEN);
+        // Map error codes to appropriate messages
+        const errorMessage = error === 'NO_TOKEN' ? MESSAGES.UNAUTHORIZED : MESSAGES.INVALID_TOKEN;
+        throw new ApiError(HTTP_STATUS.UNAUTHORIZED, errorMessage);
     }
 
     req.user = user;
@@ -52,82 +44,44 @@ export const verifyAccessToken = asyncHandler(async (req, res, next) => {
 
 export const verifyAndRotateRefreshToken = asyncHandler(async (req, res, next) => {
     const refreshToken = extractRefreshToken(req);
-
-    if (!refreshToken) {
-        throw new ApiError(HTTP_STATUS.UNAUTHORIZED, MESSAGES.TOKEN_EXPIRED);
-    }
-
     const wantsJson = isApiRequest(req);
-    let verifiedRefreshToken;
 
-    // Verify JWT signature and expiry
-    try {
-        verifiedRefreshToken = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
-    } catch (error) {
-        if (!wantsJson) {
-            return res.status(HTTP_STATUS.UNAUTHORIZED).render('login', {
-                error: MESSAGES.SESSION_EXPIRED
-            });
+    const { valid, user, error } = await verifyRefreshTokenAndUser(refreshToken);
+
+    if (!valid) {
+        // Handle expired refresh token - clear user data if needed
+        if (error === 'REFRESH_TOKEN_EXPIRED' && user) {
+            await clearUserTokens(user, false); // Don't increment version for natural expiry
         }
-        throw new ApiError(HTTP_STATUS.UNAUTHORIZED, MESSAGES.INVALID_REFRESH_TOKEN);
-    }
 
-    // Load user with refresh token hash and metadata
-    const user = await User.findById(verifiedRefreshToken?._id).select(
-        '+refreshTokenHash +refreshTokenCreatedAt +tokenVersion'
-    );
-
-    if (!user) {
-        if (!wantsJson) {
-            return res.status(HTTP_STATUS.UNAUTHORIZED).render('login', {
-                error: MESSAGES.INVALID_REFRESH_TOKEN
-            });
+        // Clear cookies for invalid refresh tokens
+        // Clear cookies for invalid refresh tokens
+        if (error === 'INVALID_REFRESH_TOKEN' || error === 'REFRESH_TOKEN_REPLACED') {
+            res.clearCookie('accessToken', getCookieOptions());
+            res.clearCookie('refreshToken', getCookieOptions());
         }
-        throw new ApiError(HTTP_STATUS.UNAUTHORIZED, MESSAGES.INVALID_REFRESH_TOKEN);
-    }
 
-    const isValidRefreshToken = await user.verifyRefreshToken(refreshToken);
-
-    if (!isValidRefreshToken) {
-        // REUSE DETECTION: This token was already used and rotated, or is forged - invalidate ALL sessions
-        console.warn(`[SECURITY] Refresh token reuse detected for user ${user._id}`);
-
-        // Increment tokenVersion to invalidate all existing access tokens
-        user.tokenVersion += 1;
-        user.refreshTokenHash = undefined;
-        user.refreshTokenCreatedAt = undefined;
-        await user.save({ validateBeforeSave: false });
+        const errorMessage = error === 'NO_REFRESH_TOKEN'
+            ? MESSAGES.TOKEN_EXPIRED
+            : error === 'USER_NOT_FOUND' || error === 'INVALID_REFRESH_TOKEN'
+                ? MESSAGES.INVALID_REFRESH_TOKEN
+                : error === 'REFRESH_TOKEN_REPLACED'
+                    ? MESSAGES.SESSION_INVALIDATED
+                    : MESSAGES.SESSION_EXPIRED;
 
         if (!wantsJson) {
             return res.status(HTTP_STATUS.UNAUTHORIZED).render('login', {
-                error: MESSAGES.TOKEN_REUSE_DETECTED
+                error: errorMessage
             });
         }
-        throw new ApiError(HTTP_STATUS.UNAUTHORIZED, MESSAGES.TOKEN_REUSE_DETECTED);
-    }
-
-    const now = Date.now();
-    const absoluteExpiry =
-        new Date(user.refreshTokenCreatedAt).getTime() + REFRESH_TOKEN_ABSOLUTE_EXPIRY;
-
-    if (now > absoluteExpiry) {
-        user.refreshTokenHash = undefined;
-        user.refreshTokenCreatedAt = undefined;
-        await user.save({ validateBeforeSave: false });
-
-        if (!wantsJson) {
-            return res.status(HTTP_STATUS.UNAUTHORIZED).render('login', {
-                error: MESSAGES.SESSION_EXPIRED
-            });
-        }
-        throw new ApiError(HTTP_STATUS.UNAUTHORIZED, MESSAGES.SESSION_EXPIRED);
+        throw new ApiError(HTTP_STATUS.UNAUTHORIZED, errorMessage);
     }
 
     // Generate new refresh token (rotation for security)
     const newRefreshToken = user.generateRefreshToken();
 
     // Hash and store the new refresh token
-    user.refreshTokenHash = await user.hashRefreshToken(newRefreshToken);
+    user.refreshTokenHash = user.hashRefreshToken(newRefreshToken);
 
     await user.save({ validateBeforeSave: false });
 
@@ -144,14 +98,25 @@ export const autoRefreshToken = asyncHandler(async (req, res, next) => {
         const newAccessToken = req.user.generateAccessToken();
 
         // Set both new tokens as HTTP-only, secure cookies
-        res.cookie('accessToken', newAccessToken, {
-            ...getCookieOptions(),
-            maxAge: COOKIE_ACCESS_TOKEN_EXPIRY
-        }).cookie('refreshToken', req.newRefreshToken, {
-            ...getCookieOptions(),
-            maxAge: COOKIE_REFRESH_TOKEN_EXPIRY
-        });
+        setAuthCookies(res, newAccessToken, req.newRefreshToken);
 
+        const wantsJson = isApiRequest(req);
+
+        // Check if this is a direct call to the refresh endpoint (has _isRefreshEndpoint flag)
+        const isDirectRefreshCall = req._isRefreshEndpoint;
+
+        // If used as dedicated refresh endpoint, send response
+        if (isDirectRefreshCall) {
+            if (wantsJson) {
+                return res
+                    .status(HTTP_STATUS.OK)
+                    .json(new ApiResponse(HTTP_STATUS.OK, { accessToken: newAccessToken }, MESSAGES.TOKEN_REFRESHED));
+            }
+            // Web refresh is silent — redirect back to referrer or home
+            return res.redirect(req.get('Referer') || '/');
+        }
+
+        // If used as middleware helper, continue to next
         next();
     });
 });
@@ -165,62 +130,25 @@ export const restrictToLogin = asyncHandler(async (req, res, next) => {
         return res.redirect('/login');
     }
 
-    // Only refresh token present OR access token expired - try to refresh
-    if (!token || (token && refreshToken)) {
-        let verifiedToken;
+    // Verify access token
+    const { valid, user, tokenExpired } = await verifyAccessTokenAndUser(token);
 
-        if (token) {
-            try {
-                verifiedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-            } catch (error) {
-                if (error.name === 'TokenExpiredError') {
-                    verifiedToken = null;
-                } else {
-                    // Invalid token - redirect to login
-                    return res.status(HTTP_STATUS.UNAUTHORIZED).render('login', {
-                        error: MESSAGES.INVALID_TOKEN
-                    });
-                }
-            }
-        }
-
-        // If no valid access token, use refresh token
-        if (!verifiedToken && refreshToken) {
-            // Use the same refresh logic, then set cookies and continue
-            return await verifyAndRotateRefreshToken(req, res, async () => {
-                const newAccessToken = req.user.generateAccessToken();
-
-                res.cookie('accessToken', newAccessToken, {
-                    ...getCookieOptions(),
-                    maxAge: COOKIE_ACCESS_TOKEN_EXPIRY
-                }).cookie('refreshToken', req.newRefreshToken, {
-                    ...getCookieOptions(),
-                    maxAge: COOKIE_REFRESH_TOKEN_EXPIRY
-                });
-
-                next();
-            });
-        }
-
-        // Access token is valid - verify user and token version
-        if (verifiedToken) {
-            const user = await User.findById(verifiedToken?._id).select('+tokenVersion');
-            if (!user) {
-                return res.redirect('/login');
-            }
-            if (verifiedToken.tokenVersion !== user.tokenVersion) {
-                return res.render('login', {
-                    error: MESSAGES.INVALID_TOKEN
-                });
-            }
-
-            req.user = user;
-            return next();
-        }
+    if (valid) {
+        req.user = user;
+        return next();
     }
 
-    // Shouldn't reach here, but redirect to login as fallback
-    return res.redirect('/login');
+    // If token expired or invalid, try refresh token
+    if (tokenExpired) {
+        res.clearCookie('accessToken', getCookieOptions());
+    }
+
+    if (!refreshToken) {
+        return res.redirect('/login');
+    }
+
+    // Use the same refresh logic, then set cookies and continue
+    await autoRefreshToken(req, res, next);
 });
 
 export const redirectIfLoggedIn = asyncHandler(async (req, res, next) => {
@@ -232,46 +160,18 @@ export const redirectIfLoggedIn = asyncHandler(async (req, res, next) => {
         return next();
     }
 
-    // Verify access token validity
-    if (token) {
-        try {
-            const verifiedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-            const user = await User.findById(verifiedToken?._id).select('+tokenVersion');
+    // Verify access token
+    const { valid: accessTokenValid } = await verifyAccessTokenAndUser(token);
 
-            // If user exists and token is valid, redirect to home
-            if (user && verifiedToken.tokenVersion === user.tokenVersion) {
-                return res.redirect('/');
-            }
-        } catch (error) {
-            // Token expired or invalid - check refresh token next
-        }
+    if (accessTokenValid) {
+        return res.redirect('/');
     }
 
-    // If access token is expired/invalid but refresh token exists, verify refresh token
-    if (refreshToken) {
-        try {
-            const verifiedRefreshToken = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
-            const user = await User.findById(verifiedRefreshToken?._id).select(
-                '+refreshTokenHash +refreshTokenCreatedAt +tokenVersion'
-            );
+    // Verify refresh token
+    const { valid: refreshTokenValid } = await verifyRefreshTokenAndUser(refreshToken);
 
-            // Verify refresh token is valid
-            if (user) {
-                const isValidRefreshToken = await user.verifyRefreshToken(refreshToken);
-
-                // Check absolute expiry
-                const now = Date.now();
-                const absoluteExpiry =
-                    new Date(user.refreshTokenCreatedAt).getTime() + REFRESH_TOKEN_ABSOLUTE_EXPIRY;
-
-                // If refresh token is valid and not expired, user is logged in
-                if (isValidRefreshToken && now <= absoluteExpiry) {
-                    return res.redirect('/');
-                }
-            }
-        } catch (error) {
-            // Refresh token invalid or expired - allow access to login/signup
-        }
+    if (refreshTokenValid) {
+        return res.redirect('/');
     }
 
     // No valid tokens - allow access to login/signup
