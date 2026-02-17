@@ -1,9 +1,10 @@
 import { v4 as uuidv4 } from 'uuid';
-import { verifyAccessTokenAndUser, verifyRefreshTokenAndUser } from '../utils/auth.helpers.js';
+import { verifyAccessTokenAndUser } from '../utils/auth.helpers.js';
 import { extractAccessToken, extractRefreshToken, getCookieOptions } from '../utils/helpers.js';
 import { autoRefreshToken } from './auth.middleware.js';
+import Guest from '../models/guest.model.js';
 
-export const handleGuest = (req, res, next) => {
+export const handleGuest = async (req, res, next) => {
     // If user is already logged in (from softAuth), skip guest logic
     if (req.user) {
         if (req.cookies.guest_token) {
@@ -21,6 +22,18 @@ export const handleGuest = (req, res, next) => {
             ...getCookieOptions(),
             maxAge: 365 * 24 * 60 * 60 * 1000 // 1 year
         });
+
+        // Store guest details in DB
+        try {
+            await Guest.create({
+                guestId,
+                ipAddress: req.ip,
+                userAgent: req.headers['user-agent']
+            });
+        } catch (error) {
+            console.error('Error creating guest record:', error);
+            // Continue even if logging fails
+        }
     }
 
     req.guestId = guestId;
@@ -43,7 +56,7 @@ export const softAuth = async (req, res, next) => {
                 req.user = user;
                 return next();
             }
-        } catch (error) {
+        } catch {
             // Ignore access token errors, proceed to refresh token
         }
     }
@@ -53,7 +66,7 @@ export const softAuth = async (req, res, next) => {
     if (refreshToken) {
         try {
             return autoRefreshToken(req, res, next);
-        } catch (error) {
+        } catch {
             // Ignore refresh errors - proceed as guest
         }
     }

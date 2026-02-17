@@ -16,6 +16,9 @@ import { HTTP_STATUS } from './constants.js';
 
 const app = express();
 
+// Trust proxy for Vercel/Heroku/etc.
+app.set('trust proxy', 1);
+
 // Dummy Favicon setup to handle favicon errors
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

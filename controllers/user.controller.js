@@ -1,13 +1,9 @@
 import User from '../models/user.model.js';
+import Guest from '../models/guest.model.js';
 import asyncHandler from '../utils/asyncHandler.js';
 import ApiError from '../utils/ApiError.js';
 import ApiResponse from '../utils/ApiResponse.js';
-import {
-    HTTP_STATUS,
-    MESSAGES,
-    REDIRECT_MESSAGES,
-    REDIRECT_DELAY_MS
-} from '../constants.js';
+import { HTTP_STATUS, MESSAGES, REDIRECT_MESSAGES, REDIRECT_DELAY_MS } from '../constants.js';
 import { capitalize, isApiRequest, getCookieOptions } from '../utils/helpers.js';
 import { generateAvatarFromName } from '../utils/generateAvatars.js';
 import { setAuthCookies, generateAndStoreTokens, clearUserTokens } from '../utils/auth.helpers.js';
@@ -23,9 +19,17 @@ export const userSignUp = asyncHandler(async (req, res) => {
         const wantsJson = isApiRequest(req);
 
         // Generate and store tokens
-        const { accessToken, refreshToken } = await generateAndStoreTokens(user, { setVersionToZero: true });
+        const { accessToken, refreshToken } = await generateAndStoreTokens(user, {
+            setVersionToZero: true
+        });
 
         setAuthCookies(res, accessToken, refreshToken);
+
+        // Clean up guest data if exists
+        if (req.cookies?.guest_token) {
+            await Guest.deleteOne({ guestId: req.cookies.guest_token });
+            res.clearCookie('guest_token', getCookieOptions());
+        }
 
         if (wantsJson) {
             const userResponse = {
@@ -77,7 +81,9 @@ export const userLogin = asyncHandler(async (req, res, next) => {
         : { username: identifier };
 
     // Need to select password explicitly since it's excluded by default
-    const user = await User.findOne(identifierQuery).select('+password +tokenVersion +refreshTokenHash +refreshTokenCreatedAt');
+    const user = await User.findOne(identifierQuery).select(
+        '+password +tokenVersion +refreshTokenHash +refreshTokenCreatedAt'
+    );
     const isMatch = await user?.comparePassword(password);
 
     const wantsJson = isApiRequest(req);
@@ -94,9 +100,17 @@ export const userLogin = asyncHandler(async (req, res, next) => {
 
     try {
         // Generate and store tokens (incrementing version to invalidate old sessions)
-        const { accessToken, refreshToken } = await generateAndStoreTokens(user, { incrementVersion: true });
+        const { accessToken, refreshToken } = await generateAndStoreTokens(user, {
+            incrementVersion: true
+        });
 
         setAuthCookies(res, accessToken, refreshToken);
+
+        // Clean up guest data if exists
+        if (req.cookies?.guest_token) {
+            await Guest.deleteOne({ guestId: req.cookies.guest_token });
+            res.clearCookie('guest_token', getCookieOptions());
+        }
     } catch (error) {
         if (wantsJson) {
             throw new ApiError(HTTP_STATUS.INTERNAL_SERVER_ERROR, MESSAGES.SOMETHING_WENT_WRONG);
