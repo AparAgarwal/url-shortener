@@ -13,11 +13,10 @@ export const capitalize = (str = '') => (str ? str.charAt(0).toUpperCase() + str
 export const getCookieOptions = () => ({
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict'
+    sameSite: 'Lax'
 });
 
 export const extractAccessToken = req =>
     req.cookies?.accessToken || req.header('Authorization')?.replace('Bearer ', '');
 
-export const extractRefreshToken = req =>
-    req.cookies?.refreshToken;
+export const extractRefreshToken = req => req.cookies?.refreshToken;
