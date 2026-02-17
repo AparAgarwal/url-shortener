@@ -28,36 +28,17 @@ export default [
         },
         rules: {
             'prettier/prettier': 'error',
-            indent: ['error', 4],
-            quotes: ['error', 'single', { avoidEscape: true }],
-            semi: ['error', 'always'],
+            // Code quality rules (not formatting)
             'no-unused-vars': ['warn', { argsIgnorePattern: '^_|next' }],
             'no-console': 'off',
             'no-process-exit': 'off',
             'prefer-const': 'error',
-            'arrow-spacing': ['error', { before: true, after: true }],
-            'comma-dangle': ['error', 'never'],
             eqeqeq: ['error', 'always'],
             'no-var': 'error',
             'prefer-arrow-callback': 'warn',
             'prefer-template': 'warn',
             'object-shorthand': 'warn',
-            'no-trailing-spaces': 'error',
-            'no-multiple-empty-lines': ['error', { max: 2, maxEOF: 1 }],
-            'space-before-function-paren': [
-                'error',
-                {
-                    anonymous: 'always',
-                    named: 'never',
-                    asyncArrow: 'always'
-                }
-            ],
-            'keyword-spacing': ['error', { before: true, after: true }],
-            'space-infix-ops': 'error',
-            'comma-spacing': ['error', { before: false, after: true }],
-            'brace-style': ['error', '1tbs', { allowSingleLine: true }],
-            curly: ['error', 'all'],
-            'no-multi-spaces': 'error'
+            curly: ['error', 'all']
         }
     },
     {
