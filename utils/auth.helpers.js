@@ -7,7 +7,7 @@ import {
 } from '../constants.js';
 import { getCookieOptions } from './helpers.js';
 
-export const verifyAccessTokenAndUser = async (token) => {
+export const verifyAccessTokenAndUser = async token => {
     if (!token) {
         return { valid: false, user: null, error: 'NO_TOKEN', tokenExpired: false };
     }
@@ -21,7 +21,12 @@ export const verifyAccessTokenAndUser = async (token) => {
         }
 
         if (verifiedToken.tokenVersion !== user.tokenVersion) {
-            return { valid: false, user: null, error: 'TOKEN_VERSION_MISMATCH', tokenExpired: false };
+            return {
+                valid: false,
+                user: null,
+                error: 'TOKEN_VERSION_MISMATCH',
+                tokenExpired: false
+            };
         }
 
         return { valid: true, user, error: null, tokenExpired: false };
@@ -33,7 +38,7 @@ export const verifyAccessTokenAndUser = async (token) => {
     }
 };
 
-export const verifyRefreshTokenAndUser = async (refreshToken) => {
+export const verifyRefreshTokenAndUser = async refreshToken => {
     if (!refreshToken) {
         return { valid: false, user: null, error: 'NO_REFRESH_TOKEN' };
     }
@@ -41,7 +46,7 @@ export const verifyRefreshTokenAndUser = async (refreshToken) => {
     try {
         const verifiedRefreshToken = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
         const user = await User.findById(verifiedRefreshToken?._id).select(
-            '+refreshTokenHash +refreshTokenCreatedAt +tokenVersion'
+            '+refreshTokenHash +refreshTokenCreatedAt +tokenVersion +previousRefreshTokenHash +previousRefreshTokenExpiry'
         );
 
         if (!user) {

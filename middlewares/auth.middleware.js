@@ -85,8 +85,15 @@ export const verifyAndRotateRefreshToken = asyncHandler(async (req, res, next) =
     // Generate new refresh token (rotation for security)
     const newRefreshToken = user.generateRefreshToken();
 
+    // Grace Period: Move current token to previous before overwriting
+    if (user.refreshTokenHash) {
+        user.previousRefreshTokenHash = user.refreshTokenHash;
+        user.previousRefreshTokenExpiry = new Date(Date.now() + 60 * 1000); // 1 minute grace period
+    }
+
     // Hash and store the new refresh token
     user.refreshTokenHash = user.hashRefreshToken(newRefreshToken);
+    user.refreshTokenCreatedAt = new Date();
 
     await user.save({ validateBeforeSave: false });
 

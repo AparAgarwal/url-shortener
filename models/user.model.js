@@ -43,6 +43,15 @@ const userSchema = new mongoose.Schema(
             type: Date, // Timestamp when refresh token was first issued
             select: false
         },
+        previousRefreshTokenHash: {
+            type: String,
+            select: false,
+            sparse: true
+        },
+        previousRefreshTokenExpiry: {
+            type: Date,
+            select: false
+        },
         tokenVersion: {
             type: Number,
             default: 0,
@@ -104,7 +113,23 @@ userSchema.methods.verifyRefreshToken = function (refreshToken) {
         return false;
     }
     const incomingHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
-    return this.refreshTokenHash === incomingHash;
+
+    // 1. Check current token
+    if (this.refreshTokenHash === incomingHash) {
+        return true;
+    }
+
+    // 2. Check previous token (Grace Period)
+    if (
+        this.previousRefreshTokenHash &&
+        this.previousRefreshTokenHash === incomingHash &&
+        this.previousRefreshTokenExpiry &&
+        new Date() < this.previousRefreshTokenExpiry
+    ) {
+        return true;
+    }
+
+    return false;
 };
 
 const User = mongoose.model('User', userSchema);
