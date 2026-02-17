@@ -4,7 +4,6 @@ import mongoose from 'mongoose';
 import validateEnv from '../utils/validateEnv.js';
 import connectDB from '../config/db.js';
 
-
 // Initialize once flag
 let initialized = false;
 
@@ -39,7 +38,7 @@ const connectToDatabase = async () => {
     if (mongoose.connection.readyState === 2) {
         console.log('⏳ Connection already in progress, waiting...');
         // Wait for existing connection attempt
-        await new Promise((resolve) => {
+        await new Promise(resolve => {
             mongoose.connection.once('connected', resolve);
         });
         return;

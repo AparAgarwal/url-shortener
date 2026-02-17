@@ -262,16 +262,16 @@ The server will start at `http://localhost:3000` ✨
 
 ### Required Environment Variables
 
-| Variable               | Description                             | Example                                |
-| ---------------------- | --------------------------------------- | -------------------------------------- |
-| `PORT`                 | Port number for the server              | `3000`                                 |
-| `MONGO_URI`            | MongoDB connection string               | `mongodb://localhost:27017/shorturl`   |
-| `NODE_ENV`             | Environment mode                        | `development` or `production`          |
+| Variable               | Description                                             | Example                                |
+| ---------------------- | ------------------------------------------------------- | -------------------------------------- |
+| `PORT`                 | Port number for the server                              | `3000`                                 |
+| `MONGO_URI`            | MongoDB connection string                               | `mongodb://localhost:27017/shorturl`   |
+| `NODE_ENV`             | Environment mode                                        | `development` or `production`          |
 | `BASE_URL`             | Base URL for generating short links (no trailing slash) | `http://localhost:3000`                |
-| `ACCESS_TOKEN_SECRET`  | Secret key for JWT token generation     | Generated using crypto.randomBytes(64) |
-| `ACCESS_TOKEN_EXPIRY`  | JWT access token expiration time        | `15m`, `1h`, `7d`                      |
-| `REFRESH_TOKEN_SECRET` | Secret key for refresh token generation | Generated using crypto.randomBytes(64) |
-| `REFRESH_TOKEN_EXPIRY` | JWT refresh token expiration time       | `7d`, `30d`                            |
+| `ACCESS_TOKEN_SECRET`  | Secret key for JWT token generation                     | Generated using crypto.randomBytes(64) |
+| `ACCESS_TOKEN_EXPIRY`  | JWT access token expiration time                        | `15m`, `1h`, `7d`                      |
+| `REFRESH_TOKEN_SECRET` | Secret key for refresh token generation                 | Generated using crypto.randomBytes(64) |
+| `REFRESH_TOKEN_EXPIRY` | JWT refresh token expiration time                       | `7d`, `30d`                            |
 
 ### MongoDB Connection Options
 
@@ -309,41 +309,41 @@ This application is optimized for serverless deployment on [Vercel](https://verc
 #### Steps:
 
 1. **Prepare the Repository**:
-   - Ensure `vercel.json` exists in the root directory
-   - Ensure `api/index.js` (serverless function handler) exists
+    - Ensure `vercel.json` exists in the root directory
+    - Ensure `api/index.js` (serverless function handler) exists
 
 2. **Deploy via GitHub Integration**:
-   - Sign up/Login at [Vercel](https://vercel.com)
-   - Click "Add New Project"
-   - Import your GitHub repository
-   - Vercel will auto-detect the configuration
+    - Sign up/Login at [Vercel](https://vercel.com)
+    - Click "Add New Project"
+    - Import your GitHub repository
+    - Vercel will auto-detect the configuration
 
 3. **Set Environment Variables** in Vercel Dashboard:
 
     Go to **Settings → Environment Variables** and add:
 
-    | Variable               | Value                                                   |
-    | ---------------------- | ------------------------------------------------------- |
-    | `MONGO_URI`            | Your MongoDB Atlas connection string                    |
+    | Variable               | Value                                                                          |
+    | ---------------------- | ------------------------------------------------------------------------------ |
+    | `MONGO_URI`            | Your MongoDB Atlas connection string                                           |
     | `BASE_URL`             | Your Vercel domain (e.g., `https://your-app.vercel.app`) **NO trailing slash** |
-    | `NODE_ENV`             | `production`                                            |
-    | `ACCESS_TOKEN_SECRET`  | Generate using `crypto.randomBytes(64).toString('hex')` |
-    | `ACCESS_TOKEN_EXPIRY`  | `15m` (or your preferred expiry)                        |
-    | `REFRESH_TOKEN_SECRET` | Generate using `crypto.randomBytes(64).toString('hex')` |
-    | `REFRESH_TOKEN_EXPIRY` | `7d` (or your preferred expiry)                         |
+    | `NODE_ENV`             | `production`                                                                   |
+    | `ACCESS_TOKEN_SECRET`  | Generate using `crypto.randomBytes(64).toString('hex')`                        |
+    | `ACCESS_TOKEN_EXPIRY`  | `15m` (or your preferred expiry)                                               |
+    | `REFRESH_TOKEN_SECRET` | Generate using `crypto.randomBytes(64).toString('hex')`                        |
+    | `REFRESH_TOKEN_EXPIRY` | `7d` (or your preferred expiry)                                                |
 
 4. **Deploy**: Click "Deploy" - Vercel will build and deploy automatically
 
 5. **Configure Custom Domain** (Optional):
-   - Go to **Settings → Domains**
-   - Click "Add Domain"
-   - Enter your custom domain (e.g., `url.yourdomain.com`)
-   - Add CNAME record in your DNS provider:
-     - **Name**: `url` (or your subdomain)
-     - **Value**: `cname.vercel-dns.com`
-   - Wait for DNS propagation (5-60 minutes)
-   - Update `BASE_URL` environment variable to your custom domain
-   - Redeploy
+    - Go to **Settings → Domains**
+    - Click "Add Domain"
+    - Enter your custom domain (e.g., `url.yourdomain.com`)
+    - Add CNAME record in your DNS provider:
+        - **Name**: `url` (or your subdomain)
+        - **Value**: `cname.vercel-dns.com`
+    - Wait for DNS propagation (5-60 minutes)
+    - Update `BASE_URL` environment variable to your custom domain
+    - Redeploy
 
 #### Important Notes:
 

@@ -1,9 +1,5 @@
 import express from 'express';
-import {
-    userSignUp,
-    userLogin,
-    userLogout
-} from '../controllers/user.controller.js';
+import { userSignUp, userLogin, userLogout } from '../controllers/user.controller.js';
 import { signupValidation, loginValidation } from '../middlewares/validators.js';
 import { verifyAccessToken, autoRefreshToken } from '../middlewares/auth.middleware.js';
 
@@ -24,8 +20,12 @@ router.post('/login', loginValidation, userLogin);
 router.post('/logout', verifyAccessToken, userLogout);
 
 // POST /api/v1/user/refresh-token - Refresh access token
-router.post('/refresh-token', (req, res, next) => {
-    req._isRefreshEndpoint = true;
-    next();
-}, autoRefreshToken);
+router.post(
+    '/refresh-token',
+    (req, res, next) => {
+        req._isRefreshEndpoint = true;
+        next();
+    },
+    autoRefreshToken
+);
 export default router;
