@@ -52,13 +52,7 @@ export const softAuth = async (req, res, next) => {
     const refreshToken = extractRefreshToken(req);
     if (refreshToken) {
         try {
-            // Check if refresh token is valid before calling autoRefreshToken to avoid error responses
-            const { valid, user } = await verifyRefreshTokenAndUser(refreshToken);
-
-            if (valid && user) {
-                // If valid, let autoRefreshToken handle rotation and cookie setting
-                return autoRefreshToken(req, res, next);
-            }
+            return autoRefreshToken(req, res, next);
         } catch (error) {
             // Ignore refresh errors - proceed as guest
         }
